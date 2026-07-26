@@ -25,11 +25,17 @@ def main() -> None:
     if not sql_path.exists():
         sys.exit(f"SQL file not found: {sql_path}")
 
-    query = sql_path.read_text()
+    sql_text = sql_path.read_text()
+
+    # Split into individual statements so every query in the file is run,
+    # not just the last one (DuckDB only returns the final statement's result).
+    statements = [s.strip() for s in sql_text.split(";") if s.strip()]
 
     # Run from the project root so the relative CSV paths in the query resolve.
     os.chdir(PROJECT_ROOT)
-    duckdb.sql(query).show(max_rows=20)
+    for i, statement in enumerate(statements, start=1):
+        print(f"\n=== Query {i} of {len(statements)} ===")
+        duckdb.sql(statement).show(max_rows=20)
 
 
 if __name__ == "__main__":
