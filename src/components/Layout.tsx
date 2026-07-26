@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { ThemeToggle } from './ThemeToggle'
 
 interface LayoutProps {
   children: ReactNode
@@ -7,7 +8,7 @@ interface LayoutProps {
 export function Layout({ children }: LayoutProps) {
   return (
     <div className="flex min-h-svh w-full flex-col text-left">
-      <header className="border-b border-[var(--border)] px-6 py-4 sm:px-10">
+      <header className="flex items-center justify-between border-b border-[var(--border)] px-6 py-4 sm:px-10">
         <div className="flex items-center gap-2">
           <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--accent)] text-sm font-bold text-white">
             PSN
@@ -16,6 +17,7 @@ export function Layout({ children }: LayoutProps) {
             Play Sports Network
           </span>
         </div>
+        <ThemeToggle />
       </header>
 
       <main className="flex-1 px-6 py-8 sm:px-10">{children}</main>
