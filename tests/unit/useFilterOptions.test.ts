@@ -40,12 +40,10 @@ describe('useFilterOptions', () => {
     expect(videoTypes).toEqual(['Long-form', 'Short'])
   })
 
-  it('builds de-duplicated search suggestions from channels and titles', () => {
+  it('builds de-duplicated search suggestions from titles only', () => {
     const { searchSuggestions } = render(rows)
-    // Contains every channel and title, with no duplicates.
-    expect(new Set(searchSuggestions)).toEqual(
-      new Set(['Beta', 'Alpha', 'B1', 'A1', 'A2']),
-    )
+    // Contains every title (channels are filtered separately), with no duplicates.
+    expect(new Set(searchSuggestions)).toEqual(new Set(['B1', 'A1', 'A2']))
     expect(searchSuggestions).toHaveLength(new Set(searchSuggestions).size)
   })
 

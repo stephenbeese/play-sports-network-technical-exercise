@@ -30,15 +30,16 @@ test('renders the dashboard with KPIs and a populated table', async ({
 })
 
 test('search suggestions filter the table', async ({ page }) => {
-  await page.getByPlaceholder('Title or channel…').fill('Beta')
+  await page.getByPlaceholder('Search by title…').fill('Beta')
 
   const suggestion = page
     .getByRole('listbox')
-    .getByRole('option', { name: 'Beta United' })
+    .getByRole('option', { name: 'Beta Full Match' })
   await expect(suggestion).toBeVisible()
   await suggestion.click()
 
-  await expect(rows(page)).toHaveCount(countByChannel('Beta United'))
+  // Titles are unique, so picking one narrows the table to that single video.
+  await expect(rows(page)).toHaveCount(1)
 })
 
 test('channel and format dropdowns narrow the results', async ({ page }) => {
@@ -81,7 +82,7 @@ test('charts tab renders the chart sections', async ({ page }) => {
     'Views over time',
     'Top 10 videos by views',
     'Views by channel',
-    'Shorts vs Long-form',
+    'Video count by format',
     'Watch time by channel',
   ]) {
     await expect(page.getByRole('heading', { name: heading })).toBeVisible()
