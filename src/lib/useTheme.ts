@@ -1,24 +1,23 @@
 import { useCallback, useEffect, useState } from 'react'
-
-export type Theme = 'light' | 'dark'
+import { DEFAULT_THEME, isValidTheme, THEME_IDS, type Theme } from './themes'
 
 const STORAGE_KEY = 'theme'
 
 function getInitialTheme(): Theme {
   if (typeof document !== 'undefined') {
     const current = document.documentElement.getAttribute('data-theme')
-    if (current === 'light' || current === 'dark') return current
+    if (isValidTheme(current)) return current
   }
   if (typeof window !== 'undefined') {
     return window.matchMedia('(prefers-color-scheme: dark)').matches
       ? 'dark'
-      : 'light'
+      : DEFAULT_THEME
   }
-  return 'light'
+  return DEFAULT_THEME
 }
 
 export function useTheme() {
-  const [theme, setTheme] = useState<Theme>(getInitialTheme)
+  const [theme, setThemeState] = useState<Theme>(getInitialTheme)
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
@@ -29,9 +28,16 @@ export function useTheme() {
     }
   }, [theme])
 
-  const toggleTheme = useCallback(() => {
-    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))
+  const setTheme = useCallback((next: Theme) => {
+    setThemeState(next)
   }, [])
 
-  return { theme, toggleTheme }
+  const toggleTheme = useCallback(() => {
+    setThemeState((prev) => {
+      const index = THEME_IDS.indexOf(prev)
+      return THEME_IDS[(index + 1) % THEME_IDS.length]
+    })
+  }, [])
+
+  return { theme, setTheme, toggleTheme }
 }

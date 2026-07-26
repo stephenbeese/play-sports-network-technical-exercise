@@ -1,6 +1,13 @@
 @import 'tailwindcss';
 
-@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+@custom-variant dark (
+  &:where(
+      [data-theme='dark'],
+      [data-theme='dark'] *,
+      [data-theme='ocean'],
+      [data-theme='ocean'] *
+    )
+);
 
 :root {
   --text: #6b6375;
@@ -48,7 +55,53 @@
     rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
 }
 
-:root[data-theme='dark'] #social .button-icon {
+/* Ocean — dark navy base with a cyan accent. */
+:root[data-theme='ocean'] {
+  --text: #94a3b8;
+  --text-h: #e2e8f0;
+  --bg: #0b1220;
+  --border: #1e293b;
+  --code-bg: #131c2e;
+  --accent: #38bdf8;
+  --accent-bg: rgba(56, 189, 248, 0.15);
+  --accent-border: rgba(56, 189, 248, 0.5);
+  --social-bg: rgba(30, 41, 59, 0.5);
+  --shadow:
+    rgba(0, 0, 0, 0.45) 0 10px 15px -3px, rgba(0, 0, 0, 0.3) 0 4px 6px -2px;
+}
+
+/* Forest — warm off-white base with a green accent. */
+:root[data-theme='forest'] {
+  --text: #55705c;
+  --text-h: #14261a;
+  --bg: #f7faf5;
+  --border: #d9e4d6;
+  --code-bg: #eef3ea;
+  --accent: #16a34a;
+  --accent-bg: rgba(22, 163, 74, 0.1);
+  --accent-border: rgba(22, 163, 74, 0.5);
+  --social-bg: rgba(238, 243, 234, 0.5);
+  --shadow:
+    rgba(20, 38, 26, 0.12) 0 10px 15px -3px, rgba(20, 38, 26, 0.06) 0 4px 6px -2px;
+}
+
+/* Sunset — soft warm base with an orange accent. */
+:root[data-theme='sunset'] {
+  --text: #8a5a4a;
+  --text-h: #3b1d12;
+  --bg: #fffaf5;
+  --border: #f2ddcb;
+  --code-bg: #fdeede;
+  --accent: #f97316;
+  --accent-bg: rgba(249, 115, 22, 0.1);
+  --accent-border: rgba(249, 115, 22, 0.5);
+  --social-bg: rgba(253, 238, 222, 0.5);
+  --shadow:
+    rgba(124, 45, 18, 0.12) 0 10px 15px -3px, rgba(124, 45, 18, 0.06) 0 4px 6px -2px;
+}
+
+:root[data-theme='dark'] #social .button-icon,
+:root[data-theme='ocean'] #social .button-icon {
   filter: invert(1) brightness(2);
 }
 
