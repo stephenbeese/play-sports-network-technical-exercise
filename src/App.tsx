@@ -1,13 +1,30 @@
+import { useMemo, useState } from 'react'
 import { Layout } from './components/Layout'
+import { Pagination } from './components/Pagination'
 import { VideoTable } from './components/VideoTable'
 import { useVideoData } from './lib/useVideoData'
 
-const TOP_COUNT = 25
+const PAGE_SIZE_OPTIONS = [10, 25, 50, 100]
+const DEFAULT_PAGE_SIZE = 10
 
 function App() {
   const { rows, loading, error } = useVideoData()
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
 
-  const topRows = rows.slice(0, TOP_COUNT)
+  const pageCount = Math.max(1, Math.ceil(rows.length / pageSize))
+  const currentPage = Math.min(page, pageCount)
+  const startIndex = (currentPage - 1) * pageSize
+
+  const pageRows = useMemo(
+    () => rows.slice(startIndex, startIndex + pageSize),
+    [rows, startIndex, pageSize],
+  )
+
+  const handlePageSizeChange = (size: number) => {
+    setPageSize(size)
+    setPage(1)
+  }
 
   return (
     <Layout>
@@ -32,7 +49,20 @@ function App() {
         </div>
       )}
 
-      {!loading && !error && <VideoTable rows={topRows} />}
+      {!loading && !error && (
+        <>
+          <VideoTable rows={pageRows} startIndex={startIndex} />
+          <Pagination
+            page={currentPage}
+            pageCount={pageCount}
+            pageSize={pageSize}
+            totalItems={rows.length}
+            pageSizeOptions={PAGE_SIZE_OPTIONS}
+            onPageChange={setPage}
+            onPageSizeChange={handlePageSizeChange}
+          />
+        </>
+      )}
     </Layout>
   )
 }

@@ -9,9 +9,11 @@ import { FormatBadge } from './FormatBadge'
 
 interface VideoTableProps {
   rows: VideoRow[]
+  /** Rank offset for the first row, so numbering stays continuous across pages. */
+  startIndex?: number
 }
 
-export function VideoTable({ rows }: VideoTableProps) {
+export function VideoTable({ rows, startIndex = 0 }: VideoTableProps) {
   return (
     <div className="overflow-x-auto rounded-2xl border border-[var(--border)] bg-[var(--bg)] shadow-sm">
       <table className="w-full min-w-[860px] border-collapse text-left">
@@ -34,7 +36,7 @@ export function VideoTable({ rows }: VideoTableProps) {
               <td className="px-6 py-3">
                 <div className="flex items-center gap-4">
                   <span className="w-6 shrink-0 text-sm tabular-nums text-[var(--text)]">
-                    {(index + 1).toString().padStart(2, '0')}
+                    {(startIndex + index + 1).toString().padStart(2, '0')}
                   </span>
                   <div className="relative shrink-0">
                     <img
