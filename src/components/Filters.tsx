@@ -1,3 +1,4 @@
+import { ALL } from '../lib/constants'
 import { SearchInput } from './SearchInput'
 
 interface FiltersProps {
@@ -19,8 +20,6 @@ interface FiltersProps {
   onDateToChange: (date: string) => void
   onReset: () => void
 }
-
-const ALL = 'all'
 
 const selectClass =
   'rounded-lg border border-[var(--border)] bg-[var(--bg)] px-2.5 py-2 text-sm text-[var(--text-h)] transition-colors hover:bg-[var(--social-bg)]'
