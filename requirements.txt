@@ -6,6 +6,11 @@ python-dateutil==2.9.0.post0
 six==1.17.0
 matplotlib
 
+# Jupyter tooling to execute the notebook (nbconvert --execute) and open it interactively
+nbconvert
+jupyterlab
+notebook
+
 # Jupyter / IPython runtime needed to execute the notebook
 appnope==0.1.4
 asttokens==3.0.2

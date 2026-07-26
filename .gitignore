@@ -24,6 +24,7 @@ dist-ssr
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
+.cursor/*
 .idea
 .DS_Store
 *.suo
@@ -34,3 +35,4 @@ dist-ssr
 
 .venv/
 __pycache__/
+.ipynb_checkpoints/
