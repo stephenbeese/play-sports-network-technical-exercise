@@ -1,142 +1,69 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useMemo, useState } from 'react'
+import { Layout } from './components/Layout'
+import { Pagination } from './components/Pagination'
+import { VideoTable } from './components/VideoTable'
+import { useVideoData } from './lib/useVideoData'
+
+const PAGE_SIZE_OPTIONS = [10, 25, 50, 100]
+const DEFAULT_PAGE_SIZE = 10
 
 function App() {
-  const [count, setCount] = useState(0)
+  const { rows, loading, error } = useVideoData()
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
+
+  const pageCount = Math.max(1, Math.ceil(rows.length / pageSize))
+  const currentPage = Math.min(page, pageCount)
+  const startIndex = (currentPage - 1) * pageSize
+
+  const pageRows = useMemo(
+    () => rows.slice(startIndex, startIndex + pageSize),
+    [rows, startIndex, pageSize],
+  )
+
+  const handlePageSizeChange = (size: number) => {
+    setPageSize(size)
+    setPage(1)
+  }
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
+    <Layout>
+      <div className="mb-6">
+        <h1 className="!m-0 !text-2xl !font-semibold !tracking-tight text-[var(--text-h)]">
+          Top performing videos
+        </h1>
+        <p className="mt-1 text-sm text-[var(--text)]">
+          Ranked by total views across all channels.
+        </p>
+      </div>
 
-        <div className="mx-auto mt-8 max-w-md rounded-2xl border border-purple-500/40 bg-purple-500/10 p-6 text-left shadow-lg">
-          <span className="inline-flex items-center rounded-full bg-purple-600 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white">
-            Tailwind
-          </span>
-          <h2 className="mt-3 text-xl font-semibold text-purple-700 dark:text-purple-300">
-            Tailwind is wired up
-          </h2>
-          <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-            This card is styled entirely with utility classes. Edit them in{' '}
-            <code className="bg-purple-500/15">src/App.tsx</code> to see live
-            updates.
-          </p>
-          <button
-            type="button"
-            className="mt-4 rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-purple-700 active:bg-purple-800"
-            onClick={() => setCount((count) => count + 1)}
-          >
-            Increment ({count})
-          </button>
+      {loading && (
+        <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg)] p-10 text-center text-sm text-[var(--text)]">
+          Loading videos…
         </div>
-      </section>
+      )}
 
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
+      {error && !loading && (
+        <div className="rounded-2xl border border-red-300 bg-red-50 p-10 text-center text-sm text-red-700 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-300">
+          Failed to load data: {error}
         </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+      )}
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+      {!loading && !error && (
+        <>
+          <VideoTable rows={pageRows} startIndex={startIndex} />
+          <Pagination
+            page={currentPage}
+            pageCount={pageCount}
+            pageSize={pageSize}
+            totalItems={rows.length}
+            pageSizeOptions={PAGE_SIZE_OPTIONS}
+            onPageChange={setPage}
+            onPageSizeChange={handlePageSizeChange}
+          />
+        </>
+      )}
+    </Layout>
   )
 }
 
