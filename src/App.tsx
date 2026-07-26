@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { Filters } from './components/Filters'
 import { Layout } from './components/Layout'
 import { Pagination } from './components/Pagination'
 import { VideoTable } from './components/VideoTable'
@@ -6,23 +7,55 @@ import { useVideoData } from './lib/useVideoData'
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100]
 const DEFAULT_PAGE_SIZE = 10
+const ALL = 'all'
 
 function App() {
   const { rows, loading, error } = useVideoData()
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
+  const [channel, setChannel] = useState(ALL)
+  const [videoType, setVideoType] = useState(ALL)
 
-  const pageCount = Math.max(1, Math.ceil(rows.length / pageSize))
+  const channels = useMemo(
+    () => Array.from(new Set(rows.map((row) => row.account_name))).sort(),
+    [rows],
+  )
+  const videoTypes = useMemo(
+    () => Array.from(new Set(rows.map((row) => row.video_type))).sort(),
+    [rows],
+  )
+
+  const filteredRows = useMemo(
+    () =>
+      rows.filter(
+        (row) =>
+          (channel === ALL || row.account_name === channel) &&
+          (videoType === ALL || row.video_type === videoType),
+      ),
+    [rows, channel, videoType],
+  )
+
+  const pageCount = Math.max(1, Math.ceil(filteredRows.length / pageSize))
   const currentPage = Math.min(page, pageCount)
   const startIndex = (currentPage - 1) * pageSize
 
   const pageRows = useMemo(
-    () => rows.slice(startIndex, startIndex + pageSize),
-    [rows, startIndex, pageSize],
+    () => filteredRows.slice(startIndex, startIndex + pageSize),
+    [filteredRows, startIndex, pageSize],
   )
 
   const handlePageSizeChange = (size: number) => {
     setPageSize(size)
+    setPage(1)
+  }
+
+  const handleChannelChange = (value: string) => {
+    setChannel(value)
+    setPage(1)
+  }
+
+  const handleVideoTypeChange = (value: string) => {
+    setVideoType(value)
     setPage(1)
   }
 
@@ -51,12 +84,20 @@ function App() {
 
       {!loading && !error && (
         <>
+          <Filters
+            channels={channels}
+            videoTypes={videoTypes}
+            channel={channel}
+            videoType={videoType}
+            onChannelChange={handleChannelChange}
+            onVideoTypeChange={handleVideoTypeChange}
+          />
           <VideoTable rows={pageRows} startIndex={startIndex} />
           <Pagination
             page={currentPage}
             pageCount={pageCount}
             pageSize={pageSize}
-            totalItems={rows.length}
+            totalItems={filteredRows.length}
             pageSizeOptions={PAGE_SIZE_OPTIONS}
             onPageChange={setPage}
             onPageSizeChange={handlePageSizeChange}
