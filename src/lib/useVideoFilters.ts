@@ -49,7 +49,8 @@ export function useVideoFilters(dateBounds: DateBounds): VideoFilters {
   const matchesFilters = useCallback(
     (item: Filterable) =>
       (searchQuery === '' ||
-        item.title.toLowerCase().includes(searchQuery)) &&
+        item.title.toLowerCase().includes(searchQuery) ||
+        item.account_name.toLowerCase().includes(searchQuery)) &&
       (channel === ALL || item.account_name === channel) &&
       (videoType === ALL || item.video_type === videoType) &&
       (effectiveDateFrom === '' ||
