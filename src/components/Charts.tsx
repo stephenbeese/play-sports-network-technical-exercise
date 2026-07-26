@@ -1,0 +1,365 @@
+import { useMemo } from 'react'
+import {
+  Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  LabelList,
+  Legend,
+  Line,
+  LineChart,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts'
+import { formatCompact, formatDate, formatNumber, formatWatchTime } from '../lib/format'
+import type { VideoRow } from '../types'
+
+interface ChartsProps {
+  rows: VideoRow[]
+  daily: { date: string; views: number; engagements: number }[]
+}
+
+const COLORS = {
+  lime: '#84cc16',
+  blue: '#3b82f6',
+  rose: '#fb7185',
+  accent: 'var(--accent)',
+  slate: '#94a3b8',
+}
+
+// Metric -> colour, kept consistent across every chart.
+const VIEWS_COLOR = COLORS.blue
+const ENGAGEMENTS_COLOR = COLORS.rose
+const WATCHTIME_COLOR = COLORS.lime
+
+// The format split is a composition, not a metric, so it gets its own pairing:
+// Shorts = accent, Long-form = muted slate (mirrors the neutral badge styling).
+const PIE_COLORS = [COLORS.accent, COLORS.slate]
+
+const HOVER_CURSOR = { fill: 'var(--accent-bg)' } as const
+
+const cardClass =
+  'rounded-2xl border border-[var(--border)] bg-[var(--bg)] p-5 shadow-sm'
+
+const titleClass = 'mb-4 text-sm font-semibold text-[var(--text-h)]'
+
+const axisProps = {
+  stroke: 'var(--text)',
+  fontSize: 12,
+  tickLine: false,
+} as const
+
+/** Shorten a long video title for use as a compact axis label. */
+function shortTitle(title: string): string {
+  return title.length > 22 ? `${title.slice(0, 22)}…` : title
+}
+
+/** Single-line, ellipsised category tick so long titles never wrap or clip. */
+function TitleTick({
+  x,
+  y,
+  payload,
+}: {
+  x?: number
+  y?: number
+  payload?: { value?: string }
+}) {
+  return (
+    <text
+      x={x}
+      y={y}
+      dy={4}
+      textAnchor="end"
+      fill="var(--text)"
+      fontSize={12}
+    >
+      {payload?.value ?? ''}
+    </text>
+  )
+}
+
+function ChartTooltip({
+  active,
+  payload,
+  label,
+  labelFormatter,
+  valueFormatter = formatNumber,
+}: {
+  active?: boolean
+  payload?: { name?: string; value?: number; color?: string }[]
+  label?: string | number
+  labelFormatter?: (label: string) => string
+  valueFormatter?: (value: number) => string
+}) {
+  if (!active || !payload || payload.length === 0) return null
+
+  return (
+    <div className="rounded-lg border border-[var(--border)] bg-[var(--bg)] px-3 py-2 text-xs shadow-md">
+      {label !== undefined && (
+        <p className="mb-1 font-semibold text-[var(--text-h)]">
+          {labelFormatter ? labelFormatter(String(label)) : label}
+        </p>
+      )}
+      {payload.map((entry, index) => (
+        <p key={index} className="text-[var(--text)]" style={{ color: entry.color }}>
+          {entry.name}: {valueFormatter(entry.value ?? 0)}
+        </p>
+      ))}
+    </div>
+  )
+}
+
+/** Grid of summary charts derived from the filtered videos and daily stats. */
+export function Charts({ rows, daily }: ChartsProps) {
+  const topVideos = useMemo(
+    () =>
+      [...rows]
+        .sort((a, b) => b.views - a.views)
+        .slice(0, 10)
+        .map((row) => ({
+          title: shortTitle(row.title),
+          fullTitle: row.title,
+          views: row.views,
+        })),
+    [rows],
+  )
+
+  const viewsByChannel = useMemo(() => {
+    const totals = new Map<string, number>()
+    for (const row of rows) {
+      totals.set(row.account_name, (totals.get(row.account_name) ?? 0) + row.views)
+    }
+    return Array.from(totals.entries())
+      .map(([account_name, views]) => ({ account_name, views }))
+      .sort((a, b) => b.views - a.views)
+  }, [rows])
+
+  const watchTimeByChannel = useMemo(() => {
+    const totals = new Map<string, number>()
+    for (const row of rows) {
+      totals.set(
+        row.account_name,
+        (totals.get(row.account_name) ?? 0) + row.watchtime,
+      )
+    }
+    return Array.from(totals.entries())
+      .map(([account_name, watchtime]) => ({ account_name, watchtime }))
+      .sort((a, b) => b.watchtime - a.watchtime)
+  }, [rows])
+
+  const formatSplit = useMemo(() => {
+    let shorts = 0
+    let longForm = 0
+    for (const row of rows) {
+      if (row.video_type.toLowerCase().includes('short')) shorts += 1
+      else longForm += 1
+    }
+    return [
+      { name: 'Shorts', value: shorts },
+      { name: 'Long-form', value: longForm },
+    ].filter((entry) => entry.value > 0)
+  }, [rows])
+
+  if (rows.length === 0) {
+    return (
+      <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg)] p-10 text-center text-sm text-[var(--text)]">
+        No data to chart. Try adjusting your filters.
+      </div>
+    )
+  }
+
+  return (
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div className={`${cardClass} lg:col-span-2`}>
+        <h3 className={titleClass}>Views over time</h3>
+        <ResponsiveContainer width="100%" height={320}>
+          <AreaChart data={daily} margin={{ left: 8, right: 16 }}>
+            <defs>
+              <linearGradient id="viewsGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor={VIEWS_COLOR} stopOpacity={0.4} />
+                <stop offset="95%" stopColor={VIEWS_COLOR} stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+            <XAxis dataKey="date" tickFormatter={formatDate} {...axisProps} />
+            <YAxis tickFormatter={formatCompact} {...axisProps} />
+            <Tooltip
+              content={
+                <ChartTooltip labelFormatter={formatDate} valueFormatter={formatNumber} />
+              }
+            />
+            <Area
+              type="monotone"
+              dataKey="views"
+              name="Views"
+              stroke={VIEWS_COLOR}
+              fill="url(#viewsGradient)"
+              strokeWidth={2}
+            />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
+
+      <div className={`${cardClass} lg:col-span-2`}>
+        <h3 className={titleClass}>Engagements over time</h3>
+        <ResponsiveContainer width="100%" height={320}>
+          <LineChart data={daily} margin={{ left: 8, right: 16 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+            <XAxis dataKey="date" tickFormatter={formatDate} {...axisProps} />
+            <YAxis tickFormatter={formatCompact} {...axisProps} />
+            <Tooltip
+              content={
+                <ChartTooltip labelFormatter={formatDate} valueFormatter={formatNumber} />
+              }
+            />
+            <Line
+              type="monotone"
+              dataKey="engagements"
+              name="Engagements"
+              stroke={ENGAGEMENTS_COLOR}
+              strokeWidth={2}
+              dot={false}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+
+      <div className={cardClass}>
+        <h3 className={titleClass}>Top 10 videos by views</h3>
+        <ResponsiveContainer width="100%" height={360}>
+          <BarChart
+            data={topVideos}
+            layout="vertical"
+            margin={{ left: 8, right: 52 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
+            <XAxis
+              type="number"
+              tickFormatter={formatCompact}
+              {...axisProps}
+            />
+            <YAxis
+              type="category"
+              dataKey="title"
+              width={190}
+              interval={0}
+              tick={<TitleTick />}
+              {...axisProps}
+            />
+            <Tooltip
+              cursor={HOVER_CURSOR}
+              content={<ChartTooltip valueFormatter={formatNumber} />}
+            />
+            <Bar dataKey="views" name="Views" fill={VIEWS_COLOR} radius={[0, 4, 4, 0]}>
+              <LabelList
+                dataKey="views"
+                position="right"
+                formatter={(value: number) => formatCompact(value)}
+                fill="var(--text)"
+                fontSize={11}
+              />
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+
+      <div className={cardClass}>
+        <h3 className={titleClass}>Views by channel</h3>
+        <ResponsiveContainer width="100%" height={360}>
+          <BarChart
+            data={viewsByChannel}
+            layout="vertical"
+            margin={{ left: 8, right: 52 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
+            <XAxis type="number" tickFormatter={formatCompact} {...axisProps} />
+            <YAxis
+              type="category"
+              dataKey="account_name"
+              width={130}
+              interval={0}
+              {...axisProps}
+            />
+            <Tooltip
+              cursor={HOVER_CURSOR}
+              content={<ChartTooltip valueFormatter={formatNumber} />}
+            />
+            <Bar dataKey="views" name="Views" fill={VIEWS_COLOR} radius={[0, 4, 4, 0]}>
+              <LabelList
+                dataKey="views"
+                position="right"
+                formatter={(value: number) => formatCompact(value)}
+                fill="var(--text)"
+                fontSize={11}
+              />
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+
+      <div className={cardClass}>
+        <h3 className={titleClass}>Shorts vs Long-form</h3>
+        <ResponsiveContainer width="100%" height={360}>
+          <PieChart>
+            <Pie
+              data={formatSplit}
+              dataKey="value"
+              nameKey="name"
+              innerRadius={70}
+              outerRadius={110}
+              paddingAngle={2}
+            >
+              {formatSplit.map((entry, index) => (
+                <Cell key={entry.name} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+              ))}
+            </Pie>
+            <Tooltip content={<ChartTooltip valueFormatter={formatNumber} />} />
+            <Legend
+              iconType="circle"
+              formatter={(value) => (
+                <span className="text-[var(--text)]">{value}</span>
+              )}
+            />
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
+
+      <div className={cardClass}>
+        <h3 className={titleClass}>Watch time by channel</h3>
+        <ResponsiveContainer width="100%" height={360}>
+          <BarChart data={watchTimeByChannel} margin={{ left: 8, right: 16 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+            <XAxis
+              dataKey="account_name"
+              interval={0}
+              angle={-30}
+              textAnchor="end"
+              height={80}
+              {...axisProps}
+            />
+            <YAxis
+              tickFormatter={(value: number) => formatCompact(value / 3600)}
+              {...axisProps}
+            />
+            <Tooltip
+              cursor={HOVER_CURSOR}
+              content={<ChartTooltip valueFormatter={formatWatchTime} />}
+            />
+            <Bar
+              dataKey="watchtime"
+              name="Watch time"
+              fill={WATCHTIME_COLOR}
+              radius={[4, 4, 0, 0]}
+            />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+  )
+}
