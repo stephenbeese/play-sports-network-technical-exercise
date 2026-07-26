@@ -141,14 +141,12 @@ function App() {
     setPage(1)
   }
 
-  const isDefault =
-    search === '' &&
-    channel === ALL &&
-    videoType === ALL &&
-    dateFrom === '' &&
-    dateTo === '' &&
-    sortKey === DEFAULT_SORT_KEY &&
-    sortDirection === DEFAULT_SORT_DIRECTION
+  const canReset =
+    search !== '' ||
+    channel !== ALL ||
+    videoType !== ALL ||
+    dateFrom !== '' ||
+    dateTo !== ''
 
   const handleReset = () => {
     setSearch('')
@@ -156,22 +154,11 @@ function App() {
     setVideoType(ALL)
     setDateFrom('')
     setDateTo('')
-    setSortKey(DEFAULT_SORT_KEY)
-    setSortDirection(DEFAULT_SORT_DIRECTION)
     setPage(1)
   }
 
   return (
     <Layout>
-      <div className="mb-6">
-        <h1 className="!m-0 !text-2xl !font-semibold !tracking-tight text-[var(--text-h)]">
-          Top performing videos
-        </h1>
-        <p className="mt-1 text-sm text-[var(--text)]">
-          Ranked by total views across all channels.
-        </p>
-      </div>
-
       {loading && (
         <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg)] p-10 text-center text-sm text-[var(--text)]">
           Loading videos…
@@ -197,16 +184,12 @@ function App() {
             dateTo={effectiveDateTo}
             minDate={dateBounds.min}
             maxDate={dateBounds.max}
-            sortKey={sortKey}
-            sortDirection={sortDirection}
             onSearchChange={handleSearchChange}
             onChannelChange={handleChannelChange}
             onVideoTypeChange={handleVideoTypeChange}
             onDateFromChange={handleDateFromChange}
             onDateToChange={handleDateToChange}
-            onSortKeyChange={handleSortKeyChange}
-            onSortDirectionChange={handleSortDirectionChange}
-            canReset={!isDefault}
+            canReset={canReset}
             onReset={handleReset}
           />
           <KpiCards rows={filteredRows} />
@@ -215,6 +198,8 @@ function App() {
             startIndex={startIndex}
             sortKey={sortKey}
             sortDirection={sortDirection}
+            onSortKeyChange={handleSortKeyChange}
+            onSortDirectionChange={handleSortDirectionChange}
           />
           <Pagination
             page={currentPage}
