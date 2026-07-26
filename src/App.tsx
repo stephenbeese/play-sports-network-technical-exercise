@@ -15,6 +15,7 @@ function App() {
   const { rows, loading, error } = useVideoData()
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
+  const [search, setSearch] = useState('')
   const [channel, setChannel] = useState(ALL)
   const [videoType, setVideoType] = useState(ALL)
   const [dateFrom, setDateFrom] = useState('')
@@ -46,11 +47,16 @@ function App() {
   const effectiveDateFrom = dateFrom || dateBounds.min
   const effectiveDateTo = dateTo || dateBounds.max
 
+  const searchQuery = search.trim().toLowerCase()
+
   const filteredRows = useMemo(
     () =>
       rows
         .filter(
           (row) =>
+            (searchQuery === '' ||
+              row.title.toLowerCase().includes(searchQuery) ||
+              row.account_name.toLowerCase().includes(searchQuery)) &&
             (channel === ALL || row.account_name === channel) &&
             (videoType === ALL || row.video_type === videoType) &&
             (effectiveDateFrom === '' ||
@@ -65,6 +71,7 @@ function App() {
         ),
     [
       rows,
+      searchQuery,
       channel,
       videoType,
       effectiveDateFrom,
@@ -85,6 +92,11 @@ function App() {
 
   const handlePageSizeChange = (size: number) => {
     setPageSize(size)
+    setPage(1)
+  }
+
+  const handleSearchChange = (value: string) => {
+    setSearch(value)
     setPage(1)
   }
 
@@ -119,6 +131,7 @@ function App() {
   }
 
   const isDefault =
+    search === '' &&
     channel === ALL &&
     videoType === ALL &&
     dateFrom === '' &&
@@ -127,6 +140,7 @@ function App() {
     sortDirection === DEFAULT_SORT_DIRECTION
 
   const handleReset = () => {
+    setSearch('')
     setChannel(ALL)
     setVideoType(ALL)
     setDateFrom('')
@@ -164,6 +178,7 @@ function App() {
           <Filters
             channels={channels}
             videoTypes={videoTypes}
+            search={search}
             channel={channel}
             videoType={videoType}
             dateFrom={effectiveDateFrom}
@@ -172,6 +187,7 @@ function App() {
             maxDate={dateBounds.max}
             sortKey={sortKey}
             sortDirection={sortDirection}
+            onSearchChange={handleSearchChange}
             onChannelChange={handleChannelChange}
             onVideoTypeChange={handleVideoTypeChange}
             onDateFromChange={handleDateFromChange}
