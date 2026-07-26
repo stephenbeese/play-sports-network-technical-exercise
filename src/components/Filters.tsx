@@ -7,10 +7,12 @@ interface FiltersProps {
   videoType: string
   sortKey: SortKey
   sortDirection: SortDirection
+  canReset: boolean
   onChannelChange: (channel: string) => void
   onVideoTypeChange: (videoType: string) => void
   onSortKeyChange: (sortKey: SortKey) => void
   onSortDirectionChange: (sortDirection: SortDirection) => void
+  onReset: () => void
 }
 
 const ALL = 'all'
@@ -32,10 +34,12 @@ export function Filters({
   videoType,
   sortKey,
   sortDirection,
+  canReset,
   onChannelChange,
   onVideoTypeChange,
   onSortKeyChange,
   onSortDirectionChange,
+  onReset,
 }: FiltersProps) {
   return (
     <div className="mb-4 flex flex-wrap items-center gap-4">
@@ -99,6 +103,15 @@ export function Filters({
           <option value="asc">Lowest first</option>
         </select>
       </label>
+
+      <button
+        type="button"
+        onClick={onReset}
+        disabled={!canReset}
+        className="rounded-lg border border-[var(--border)] bg-[var(--bg)] px-2.5 py-1.5 text-sm text-[var(--text-h)] transition-colors hover:bg-[var(--social-bg)] disabled:cursor-not-allowed disabled:opacity-50"
+      >
+        Reset
+      </button>
     </div>
   )
 }

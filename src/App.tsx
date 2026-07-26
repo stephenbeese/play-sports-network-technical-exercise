@@ -8,6 +8,8 @@ import { useVideoData } from './lib/useVideoData'
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100]
 const DEFAULT_PAGE_SIZE = 10
 const ALL = 'all'
+const DEFAULT_SORT_KEY: SortKey = 'views'
+const DEFAULT_SORT_DIRECTION: SortDirection = 'desc'
 
 function App() {
   const { rows, loading, error } = useVideoData()
@@ -15,8 +17,9 @@ function App() {
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
   const [channel, setChannel] = useState(ALL)
   const [videoType, setVideoType] = useState(ALL)
-  const [sortKey, setSortKey] = useState<SortKey>('views')
-  const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
+  const [sortKey, setSortKey] = useState<SortKey>(DEFAULT_SORT_KEY)
+  const [sortDirection, setSortDirection] =
+    useState<SortDirection>(DEFAULT_SORT_DIRECTION)
 
   const channels = useMemo(
     () => Array.from(new Set(rows.map((row) => row.account_name))).sort(),
@@ -77,6 +80,20 @@ function App() {
     setPage(1)
   }
 
+  const isDefault =
+    channel === ALL &&
+    videoType === ALL &&
+    sortKey === DEFAULT_SORT_KEY &&
+    sortDirection === DEFAULT_SORT_DIRECTION
+
+  const handleReset = () => {
+    setChannel(ALL)
+    setVideoType(ALL)
+    setSortKey(DEFAULT_SORT_KEY)
+    setSortDirection(DEFAULT_SORT_DIRECTION)
+    setPage(1)
+  }
+
   return (
     <Layout>
       <div className="mb-6">
@@ -113,6 +130,8 @@ function App() {
             onVideoTypeChange={handleVideoTypeChange}
             onSortKeyChange={handleSortKeyChange}
             onSortDirectionChange={handleSortDirectionChange}
+            canReset={!isDefault}
+            onReset={handleReset}
           />
           <VideoTable
             rows={pageRows}
