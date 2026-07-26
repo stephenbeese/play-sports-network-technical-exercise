@@ -21,6 +21,14 @@ export interface PostStat {
   watchtime: number
 }
 
+/** A daily stat row joined with the post fields needed for filtering charts. */
+export interface DailyStatRow extends PostStat {
+  account_name: string
+  video_type: string
+  title: string
+  published_at_date: string
+}
+
 /** A post joined with its aggregated lifetime stats. */
 export interface VideoRow extends Post {
   likes: number

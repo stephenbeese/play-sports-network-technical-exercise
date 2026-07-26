@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
-import type { Post, PostStat, VideoRow } from '../types'
+import type { DailyStatRow, Post, PostStat, VideoRow } from '../types'
 
 interface VideoData {
   rows: VideoRow[]
+  daily: DailyStatRow[]
   loading: boolean
   error: string | null
 }
@@ -40,6 +41,7 @@ function aggregateStats(stats: PostStat[]): Map<string, Omit<VideoRow, keyof Pos
  */
 export function useVideoData(): VideoData {
   const [rows, setRows] = useState<VideoRow[]>([])
+  const [daily, setDaily] = useState<DailyStatRow[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -64,6 +66,24 @@ export function useVideoData(): VideoData {
 
         const totals = aggregateStats(stats)
 
+        const postsById = new Map<string, Post>()
+        for (const post of posts) {
+          postsById.set(post.video_id, post)
+        }
+
+        const enrichedDaily: DailyStatRow[] = []
+        for (const stat of stats) {
+          const post = postsById.get(stat.video_id)
+          if (!post) continue
+          enrichedDaily.push({
+            ...stat,
+            account_name: post.account_name,
+            video_type: post.video_type,
+            title: post.title,
+            published_at_date: post.published_at_date,
+          })
+        }
+
         const joined: VideoRow[] = posts.map((post) => {
           const stat = totals.get(post.video_id) ?? {
             likes: 0,
@@ -79,6 +99,7 @@ export function useVideoData(): VideoData {
         joined.sort((a, b) => b.views - a.views)
 
         setRows(joined)
+        setDaily(enrichedDaily)
       } catch (err) {
         if (err instanceof DOMException && err.name === 'AbortError') return
         setError(err instanceof Error ? err.message : 'Unknown error')
@@ -91,5 +112,5 @@ export function useVideoData(): VideoData {
     return () => controller.abort()
   }, [])
 
-  return { rows, loading, error }
+  return { rows, daily, loading, error }
 }
