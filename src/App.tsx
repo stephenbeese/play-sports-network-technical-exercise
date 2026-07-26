@@ -32,6 +32,16 @@ function App() {
     () => Array.from(new Set(rows.map((row) => row.video_type))).sort(),
     [rows],
   )
+  const searchSuggestions = useMemo(
+    () =>
+      Array.from(
+        new Set([
+          ...rows.map((row) => row.account_name),
+          ...rows.map((row) => row.title),
+        ]),
+      ),
+    [rows],
+  )
 
   const dateBounds = useMemo(() => {
     if (rows.length === 0) return { min: '', max: '' }
@@ -178,6 +188,7 @@ function App() {
           <Filters
             channels={channels}
             videoTypes={videoTypes}
+            searchSuggestions={searchSuggestions}
             search={search}
             channel={channel}
             videoType={videoType}

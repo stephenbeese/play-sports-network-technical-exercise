@@ -1,8 +1,10 @@
+import { SearchInput } from './SearchInput'
 import type { SortDirection, SortKey } from './VideoTable'
 
 interface FiltersProps {
   channels: string[]
   videoTypes: string[]
+  searchSuggestions: string[]
   search: string
   channel: string
   videoType: string
@@ -43,6 +45,7 @@ const labelClass =
 export function Filters({
   channels,
   videoTypes,
+  searchSuggestions,
   search,
   channel,
   videoType,
@@ -67,11 +70,11 @@ export function Filters({
       <div className="flex flex-wrap items-end gap-4">
         <label className={fieldClass}>
           <span className={labelClass}>Search</span>
-          <input
-            type="search"
+          <SearchInput
             value={search}
+            suggestions={searchSuggestions}
             placeholder="Title or channel…"
-            onChange={(event) => onSearchChange(event.target.value)}
+            onChange={onSearchChange}
             className={`${selectClass} w-56`}
           />
         </label>
