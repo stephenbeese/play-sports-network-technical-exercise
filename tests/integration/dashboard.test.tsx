@@ -48,7 +48,7 @@ describe('dashboard', () => {
     it('narrows the table and KPI count by free-text search', async () => {
       const { user } = await renderDashboard()
 
-      const search = screen.getByPlaceholderText('Title or channel…')
+      const search = screen.getByPlaceholderText('Search by title…')
       await user.type(search, 'Beta')
 
       await waitFor(() => {
@@ -189,7 +189,7 @@ describe('dashboard', () => {
         'Engagements over time',
         'Top 10 videos by views',
         'Views by channel',
-        'Shorts vs Long-form',
+        'Video count by format',
         'Watch time by channel',
       ]) {
         expect(
@@ -202,7 +202,7 @@ describe('dashboard', () => {
       const { user } = await renderDashboard()
 
       await user.type(
-        screen.getByPlaceholderText('Title or channel…'),
+        screen.getByPlaceholderText('Search by title…'),
         'no-such-video',
       )
       await user.click(screen.getByRole('tab', { name: 'Charts' }))

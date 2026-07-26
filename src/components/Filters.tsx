@@ -56,7 +56,7 @@ export function Filters({
         <SearchInput
           value={search}
           suggestions={searchSuggestions}
-          placeholder="Title or channel…"
+          placeholder="Search by title…"
           onChange={onSearchChange}
           className={`${selectClass} w-full`}
         />

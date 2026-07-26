@@ -253,7 +253,7 @@ export function Charts({ rows, daily }: ChartsProps) {
       </div>
 
       <div className={cardClass}>
-        <h3 className={titleClass}>Shorts vs Long-form</h3>
+        <h3 className={titleClass}>Video count by format</h3>
         <ResponsiveContainer width="100%" height={360}>
           <PieChart>
             <Pie
