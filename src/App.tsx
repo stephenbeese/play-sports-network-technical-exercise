@@ -38,7 +38,7 @@ function App() {
           </h2>
           <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
             This card is styled entirely with utility classes. Edit them in{' '}
-            <code className="!bg-purple-500/15">src/App.tsx</code> to see live
+            <code className="bg-purple-500/15">src/App.tsx</code> to see live
             updates.
           </p>
           <button
