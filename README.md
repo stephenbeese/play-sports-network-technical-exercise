@@ -72,3 +72,18 @@ python3 sql/run_queries.py sql/queries.sql
 ```
 
 The script changes to the project root before executing, splits the file on `;`, and prints the result of every statement in turn.
+
+### 3. Build the frontend data files
+
+The frontend reads two JSON files that mirror the processed tables. Generate them from the processed CSVs with DuckDB:
+
+```bash
+python3 sql/build_frontend_data.py
+```
+
+This writes:
+
+- `public/data/posts.json` — one record per video (`video_id`, `account_name`, `published_at_date`, `video_url`, `video_type`, `title`, `video_length`, `thumbnail_url`). The heavy free-text `text` field is dropped since the UI never uses it.
+- `public/data/poststats.json` — daily stats, one record per row (`video_id`, `data_date`, `likes`, `comments`, `shares`, `views`, `watchtime`).
+
+The frontend derives the channel list, video-type list, and min/max dates from these two files, so there's no separate meta file. `poststats.json` is ~20MB as a row-per-record array, which is fine for this local exercise (Vite serves it gzipped). Re-run this script whenever the processed CSVs change.
