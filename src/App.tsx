@@ -1,8 +1,10 @@
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
+import { Charts } from './components/Charts'
 import { Filters } from './components/Filters'
 import { KpiCards } from './components/KpiCards'
 import { Layout } from './components/Layout'
 import { Pagination } from './components/Pagination'
+import { Tabs } from './components/Tabs'
 import { VideoTable, type SortDirection, type SortKey } from './components/VideoTable'
 import { useVideoData } from './lib/useVideoData'
 
@@ -13,8 +15,9 @@ const DEFAULT_SORT_KEY: SortKey = 'views'
 const DEFAULT_SORT_DIRECTION: SortDirection = 'desc'
 
 function App() {
-  const { rows, loading, error } = useVideoData()
+  const { rows, daily, loading, error } = useVideoData()
   const [page, setPage] = useState(1)
+  const [tab, setTab] = useState<'table' | 'charts'>('table')
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
   const [search, setSearch] = useState('')
   const [channel, setChannel] = useState(ALL)
@@ -60,37 +63,49 @@ function App() {
 
   const searchQuery = search.trim().toLowerCase()
 
+  const matchesFilters = useCallback(
+    (item: {
+      title: string
+      account_name: string
+      video_type: string
+      published_at_date: string
+    }) =>
+      (searchQuery === '' ||
+        item.title.toLowerCase().includes(searchQuery) ||
+        item.account_name.toLowerCase().includes(searchQuery)) &&
+      (channel === ALL || item.account_name === channel) &&
+      (videoType === ALL || item.video_type === videoType) &&
+      (effectiveDateFrom === '' ||
+        item.published_at_date >= effectiveDateFrom) &&
+      (effectiveDateTo === '' || item.published_at_date <= effectiveDateTo),
+    [searchQuery, channel, videoType, effectiveDateFrom, effectiveDateTo],
+  )
+
   const filteredRows = useMemo(
     () =>
       rows
-        .filter(
-          (row) =>
-            (searchQuery === '' ||
-              row.title.toLowerCase().includes(searchQuery) ||
-              row.account_name.toLowerCase().includes(searchQuery)) &&
-            (channel === ALL || row.account_name === channel) &&
-            (videoType === ALL || row.video_type === videoType) &&
-            (effectiveDateFrom === '' ||
-              row.published_at_date >= effectiveDateFrom) &&
-            (effectiveDateTo === '' ||
-              row.published_at_date <= effectiveDateTo),
-        )
+        .filter(matchesFilters)
         .sort((a, b) =>
           sortDirection === 'desc'
             ? b[sortKey] - a[sortKey]
             : a[sortKey] - b[sortKey],
         ),
-    [
-      rows,
-      searchQuery,
-      channel,
-      videoType,
-      effectiveDateFrom,
-      effectiveDateTo,
-      sortKey,
-      sortDirection,
-    ],
+    [rows, matchesFilters, sortKey, sortDirection],
   )
+
+  const filteredDaily = useMemo(() => {
+    const byDate = new Map<string, { views: number; engagements: number }>()
+    for (const stat of daily) {
+      if (!matchesFilters(stat)) continue
+      const current = byDate.get(stat.data_date) ?? { views: 0, engagements: 0 }
+      current.views += stat.views
+      current.engagements += stat.likes + stat.comments + stat.shares
+      byDate.set(stat.data_date, current)
+    }
+    return Array.from(byDate.entries())
+      .map(([date, totals]) => ({ date, ...totals }))
+      .sort((a, b) => a.date.localeCompare(b.date))
+  }, [daily, matchesFilters])
 
   const pageCount = Math.max(1, Math.ceil(filteredRows.length / pageSize))
   const currentPage = Math.min(page, pageCount)
@@ -193,23 +208,30 @@ function App() {
             onReset={handleReset}
           />
           <KpiCards rows={filteredRows} />
-          <VideoTable
-            rows={pageRows}
-            startIndex={startIndex}
-            sortKey={sortKey}
-            sortDirection={sortDirection}
-            onSortKeyChange={handleSortKeyChange}
-            onSortDirectionChange={handleSortDirectionChange}
-          />
-          <Pagination
-            page={currentPage}
-            pageCount={pageCount}
-            pageSize={pageSize}
-            totalItems={filteredRows.length}
-            pageSizeOptions={PAGE_SIZE_OPTIONS}
-            onPageChange={setPage}
-            onPageSizeChange={handlePageSizeChange}
-          />
+          <Tabs value={tab} onChange={setTab} />
+          {tab === 'table' ? (
+            <>
+              <VideoTable
+                rows={pageRows}
+                startIndex={startIndex}
+                sortKey={sortKey}
+                sortDirection={sortDirection}
+                onSortKeyChange={handleSortKeyChange}
+                onSortDirectionChange={handleSortDirectionChange}
+              />
+              <Pagination
+                page={currentPage}
+                pageCount={pageCount}
+                pageSize={pageSize}
+                totalItems={filteredRows.length}
+                pageSizeOptions={PAGE_SIZE_OPTIONS}
+                onPageChange={setPage}
+                onPageSizeChange={handlePageSizeChange}
+              />
+            </>
+          ) : (
+            <Charts rows={filteredRows} daily={filteredDaily} />
+          )}
         </>
       )}
     </Layout>
