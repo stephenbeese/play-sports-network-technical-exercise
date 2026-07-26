@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Filters } from './components/Filters'
+import { KpiCards } from './components/KpiCards'
 import { Layout } from './components/Layout'
 import { Pagination } from './components/Pagination'
 import { VideoTable, type SortDirection, type SortKey } from './components/VideoTable'
@@ -208,6 +209,7 @@ function App() {
             canReset={!isDefault}
             onReset={handleReset}
           />
+          <KpiCards rows={filteredRows} />
           <VideoTable
             rows={pageRows}
             startIndex={startIndex}
