@@ -17,6 +17,8 @@ function App() {
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
   const [channel, setChannel] = useState(ALL)
   const [videoType, setVideoType] = useState(ALL)
+  const [dateFrom, setDateFrom] = useState('')
+  const [dateTo, setDateTo] = useState('')
   const [sortKey, setSortKey] = useState<SortKey>(DEFAULT_SORT_KEY)
   const [sortDirection, setSortDirection] =
     useState<SortDirection>(DEFAULT_SORT_DIRECTION)
@@ -30,20 +32,46 @@ function App() {
     [rows],
   )
 
+  const dateBounds = useMemo(() => {
+    if (rows.length === 0) return { min: '', max: '' }
+    let min = rows[0].published_at_date
+    let max = rows[0].published_at_date
+    for (const row of rows) {
+      if (row.published_at_date < min) min = row.published_at_date
+      if (row.published_at_date > max) max = row.published_at_date
+    }
+    return { min, max }
+  }, [rows])
+
+  const effectiveDateFrom = dateFrom || dateBounds.min
+  const effectiveDateTo = dateTo || dateBounds.max
+
   const filteredRows = useMemo(
     () =>
       rows
         .filter(
           (row) =>
             (channel === ALL || row.account_name === channel) &&
-            (videoType === ALL || row.video_type === videoType),
+            (videoType === ALL || row.video_type === videoType) &&
+            (effectiveDateFrom === '' ||
+              row.published_at_date >= effectiveDateFrom) &&
+            (effectiveDateTo === '' ||
+              row.published_at_date <= effectiveDateTo),
         )
         .sort((a, b) =>
           sortDirection === 'desc'
             ? b[sortKey] - a[sortKey]
             : a[sortKey] - b[sortKey],
         ),
-    [rows, channel, videoType, sortKey, sortDirection],
+    [
+      rows,
+      channel,
+      videoType,
+      effectiveDateFrom,
+      effectiveDateTo,
+      sortKey,
+      sortDirection,
+    ],
   )
 
   const pageCount = Math.max(1, Math.ceil(filteredRows.length / pageSize))
@@ -70,6 +98,16 @@ function App() {
     setPage(1)
   }
 
+  const handleDateFromChange = (value: string) => {
+    setDateFrom(value)
+    setPage(1)
+  }
+
+  const handleDateToChange = (value: string) => {
+    setDateTo(value)
+    setPage(1)
+  }
+
   const handleSortKeyChange = (key: SortKey) => {
     setSortKey(key)
     setPage(1)
@@ -83,12 +121,16 @@ function App() {
   const isDefault =
     channel === ALL &&
     videoType === ALL &&
+    dateFrom === '' &&
+    dateTo === '' &&
     sortKey === DEFAULT_SORT_KEY &&
     sortDirection === DEFAULT_SORT_DIRECTION
 
   const handleReset = () => {
     setChannel(ALL)
     setVideoType(ALL)
+    setDateFrom('')
+    setDateTo('')
     setSortKey(DEFAULT_SORT_KEY)
     setSortDirection(DEFAULT_SORT_DIRECTION)
     setPage(1)
@@ -124,10 +166,16 @@ function App() {
             videoTypes={videoTypes}
             channel={channel}
             videoType={videoType}
+            dateFrom={effectiveDateFrom}
+            dateTo={effectiveDateTo}
+            minDate={dateBounds.min}
+            maxDate={dateBounds.max}
             sortKey={sortKey}
             sortDirection={sortDirection}
             onChannelChange={handleChannelChange}
             onVideoTypeChange={handleVideoTypeChange}
+            onDateFromChange={handleDateFromChange}
+            onDateToChange={handleDateToChange}
             onSortKeyChange={handleSortKeyChange}
             onSortDirectionChange={handleSortDirectionChange}
             canReset={!isDefault}
