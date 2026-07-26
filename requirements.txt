@@ -1,5 +1,6 @@
 # Data / ETL (used by jupyter_notebook/etl.ipynb)
 pandas==3.0.5
+duckdb==1.5.5
 numpy==2.5.1
 python-dateutil==2.9.0.post0
 six==1.17.0
