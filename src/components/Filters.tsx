@@ -1,8 +1,11 @@
+import { SearchInput } from './SearchInput'
 import type { SortDirection, SortKey } from './VideoTable'
 
 interface FiltersProps {
   channels: string[]
   videoTypes: string[]
+  searchSuggestions: string[]
+  search: string
   channel: string
   videoType: string
   dateFrom: string
@@ -12,6 +15,7 @@ interface FiltersProps {
   sortKey: SortKey
   sortDirection: SortDirection
   canReset: boolean
+  onSearchChange: (search: string) => void
   onChannelChange: (channel: string) => void
   onVideoTypeChange: (videoType: string) => void
   onDateFromChange: (date: string) => void
@@ -41,6 +45,8 @@ const labelClass =
 export function Filters({
   channels,
   videoTypes,
+  searchSuggestions,
+  search,
   channel,
   videoType,
   dateFrom,
@@ -50,6 +56,7 @@ export function Filters({
   sortKey,
   sortDirection,
   canReset,
+  onSearchChange,
   onChannelChange,
   onVideoTypeChange,
   onDateFromChange,
@@ -61,6 +68,17 @@ export function Filters({
   return (
     <div className="mb-4 flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
       <div className="flex flex-wrap items-end gap-4">
+        <label className={fieldClass}>
+          <span className={labelClass}>Search</span>
+          <SearchInput
+            value={search}
+            suggestions={searchSuggestions}
+            placeholder="Title or channel…"
+            onChange={onSearchChange}
+            className={`${selectClass} w-56`}
+          />
+        </label>
+
         <label className={fieldClass}>
           <span className={labelClass}>Channel</span>
           <select
