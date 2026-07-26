@@ -29,7 +29,13 @@ export function useFilterOptions(rows: VideoRow[]): FilterOptions {
   )
 
   const searchSuggestions = useMemo(
-    () => Array.from(new Set(rows.map((row) => row.title))),
+    () =>
+      Array.from(
+        new Set([
+          ...rows.map((row) => row.account_name),
+          ...rows.map((row) => row.title),
+        ]),
+      ),
     [rows],
   )
 

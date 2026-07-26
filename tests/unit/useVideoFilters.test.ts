@@ -23,16 +23,19 @@ describe('useVideoFilters.matchesFilters', () => {
     expect(result.current.canReset).toBe(false)
   })
 
-  it('matches search against the title only, case-insensitively', () => {
+  it('matches search against title or channel, case-insensitively', () => {
     const { result } = setup()
     act(() => result.current.setSearch('ALPHA'))
 
     expect(
       result.current.matchesFilters(item({ title: 'An alpha story', account_name: 'Beta' })),
     ).toBe(true)
-    // Channel is filtered via its own dropdown, so search ignores account_name.
+    // Search suggestions include channel names, so account_name must match too.
     expect(
       result.current.matchesFilters(item({ title: 'Nothing', account_name: 'Alpha FC' })),
+    ).toBe(true)
+    expect(
+      result.current.matchesFilters(item({ title: 'Nothing', account_name: 'Beta' })),
     ).toBe(false)
   })
 

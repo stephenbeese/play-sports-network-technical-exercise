@@ -56,7 +56,7 @@ export function Filters({
         <SearchInput
           value={search}
           suggestions={searchSuggestions}
-          placeholder="Search by title…"
+          placeholder="Search by title or channel…"
           onChange={onSearchChange}
           className={`${selectClass} w-full`}
         />
@@ -95,7 +95,7 @@ export function Filters({
       </label>
 
       <label className={fieldClass}>
-        <span className={labelClass}>From</span>
+        <span className={labelClass}>Published from</span>
         <input
           type="date"
           value={dateFrom}
@@ -107,7 +107,7 @@ export function Filters({
       </label>
 
       <label className={fieldClass}>
-        <span className={labelClass}>To</span>
+        <span className={labelClass}>Published to</span>
         <input
           type="date"
           value={dateTo}

@@ -48,7 +48,7 @@ describe('dashboard', () => {
     it('narrows the table and KPI count by free-text search', async () => {
       const { user } = await renderDashboard()
 
-      const search = screen.getByPlaceholderText('Search by title…')
+      const search = screen.getByPlaceholderText('Search by title or channel…')
       await user.type(search, 'Beta')
 
       await waitFor(() => {
@@ -90,7 +90,7 @@ describe('dashboard', () => {
       await renderDashboard()
 
       const from = '2025-05-01'
-      fireEvent.change(screen.getByLabelText('From'), {
+      fireEvent.change(screen.getByLabelText('Published from'), {
         target: { value: from },
       })
 
@@ -202,7 +202,7 @@ describe('dashboard', () => {
       const { user } = await renderDashboard()
 
       await user.type(
-        screen.getByPlaceholderText('Search by title…'),
+        screen.getByPlaceholderText('Search by title or channel…'),
         'no-such-video',
       )
       await user.click(screen.getByRole('tab', { name: 'Charts' }))
