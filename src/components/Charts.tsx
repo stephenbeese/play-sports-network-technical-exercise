@@ -260,7 +260,7 @@ export function Charts({ rows, daily }: ChartsProps) {
               <LabelList
                 dataKey="views"
                 position="right"
-                formatter={(value: number) => formatCompact(value)}
+                formatter={(value) => formatCompact(Number(value))}
                 fill="var(--text)"
                 fontSize={11}
               />
@@ -294,7 +294,7 @@ export function Charts({ rows, daily }: ChartsProps) {
               <LabelList
                 dataKey="views"
                 position="right"
-                formatter={(value: number) => formatCompact(value)}
+                formatter={(value) => formatCompact(Number(value))}
                 fill="var(--text)"
                 fontSize={11}
               />
