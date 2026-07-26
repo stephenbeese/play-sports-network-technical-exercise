@@ -7,13 +7,32 @@ import {
 } from '../lib/format'
 import { FormatBadge } from './FormatBadge'
 
+/** Metric columns that the table can be sorted by. */
+export type SortKey = 'views' | 'engagements' | 'watchtime'
+
+/** Sort direction: descending (highest first) or ascending (lowest first). */
+export type SortDirection = 'asc' | 'desc'
+
 interface VideoTableProps {
   rows: VideoRow[]
   /** Rank offset for the first row, so numbering stays continuous across pages. */
   startIndex?: number
+  sortKey: SortKey
+  sortDirection: SortDirection
 }
 
-export function VideoTable({ rows, startIndex = 0 }: VideoTableProps) {
+const SORTABLE_COLUMNS: { key: SortKey; label: string; className: string }[] = [
+  { key: 'views', label: 'Views', className: 'px-4' },
+  { key: 'engagements', label: 'Engagements', className: 'px-4' },
+  { key: 'watchtime', label: 'Watch Time', className: 'px-6' },
+]
+
+export function VideoTable({
+  rows,
+  startIndex = 0,
+  sortKey,
+  sortDirection,
+}: VideoTableProps) {
   return (
     <div className="overflow-x-auto rounded-2xl border border-[var(--border)] bg-[var(--bg)] shadow-sm">
       <table className="w-full min-w-[860px] border-collapse text-left">
@@ -22,9 +41,33 @@ export function VideoTable({ rows, startIndex = 0 }: VideoTableProps) {
             <th className="px-6 py-4 font-semibold">Video</th>
             <th className="px-4 py-4 font-semibold">Channel</th>
             <th className="px-4 py-4 font-semibold">Format</th>
-            <th className="px-4 py-4 text-right font-semibold">Views</th>
-            <th className="px-4 py-4 text-right font-semibold">Engagements</th>
-            <th className="px-6 py-4 text-right font-semibold">Watch Time</th>
+            {SORTABLE_COLUMNS.map((column) => {
+              const active = sortKey === column.key
+              return (
+                <th
+                  key={column.key}
+                  aria-sort={
+                    active
+                      ? sortDirection === 'desc'
+                        ? 'descending'
+                        : 'ascending'
+                      : 'none'
+                  }
+                  className={`${column.className} py-4 text-right ${
+                    active ? 'font-bold text-[var(--text-h)]' : 'font-semibold'
+                  }`}
+                >
+                  <span className="inline-flex items-center gap-1">
+                    {column.label}
+                    {active && (
+                      <span aria-hidden="true">
+                        {sortDirection === 'desc' ? '↓' : '↑'}
+                      </span>
+                    )}
+                  </span>
+                </th>
+              )
+            })}
           </tr>
         </thead>
         <tbody>

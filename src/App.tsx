@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { Filters } from './components/Filters'
 import { Layout } from './components/Layout'
 import { Pagination } from './components/Pagination'
-import { VideoTable } from './components/VideoTable'
+import { VideoTable, type SortDirection, type SortKey } from './components/VideoTable'
 import { useVideoData } from './lib/useVideoData'
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100]
@@ -15,6 +15,8 @@ function App() {
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
   const [channel, setChannel] = useState(ALL)
   const [videoType, setVideoType] = useState(ALL)
+  const [sortKey, setSortKey] = useState<SortKey>('views')
+  const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
 
   const channels = useMemo(
     () => Array.from(new Set(rows.map((row) => row.account_name))).sort(),
@@ -27,12 +29,18 @@ function App() {
 
   const filteredRows = useMemo(
     () =>
-      rows.filter(
-        (row) =>
-          (channel === ALL || row.account_name === channel) &&
-          (videoType === ALL || row.video_type === videoType),
-      ),
-    [rows, channel, videoType],
+      rows
+        .filter(
+          (row) =>
+            (channel === ALL || row.account_name === channel) &&
+            (videoType === ALL || row.video_type === videoType),
+        )
+        .sort((a, b) =>
+          sortDirection === 'desc'
+            ? b[sortKey] - a[sortKey]
+            : a[sortKey] - b[sortKey],
+        ),
+    [rows, channel, videoType, sortKey, sortDirection],
   )
 
   const pageCount = Math.max(1, Math.ceil(filteredRows.length / pageSize))
@@ -56,6 +64,16 @@ function App() {
 
   const handleVideoTypeChange = (value: string) => {
     setVideoType(value)
+    setPage(1)
+  }
+
+  const handleSortKeyChange = (key: SortKey) => {
+    setSortKey(key)
+    setPage(1)
+  }
+
+  const handleSortDirectionChange = (direction: SortDirection) => {
+    setSortDirection(direction)
     setPage(1)
   }
 
@@ -89,10 +107,19 @@ function App() {
             videoTypes={videoTypes}
             channel={channel}
             videoType={videoType}
+            sortKey={sortKey}
+            sortDirection={sortDirection}
             onChannelChange={handleChannelChange}
             onVideoTypeChange={handleVideoTypeChange}
+            onSortKeyChange={handleSortKeyChange}
+            onSortDirectionChange={handleSortDirectionChange}
           />
-          <VideoTable rows={pageRows} startIndex={startIndex} />
+          <VideoTable
+            rows={pageRows}
+            startIndex={startIndex}
+            sortKey={sortKey}
+            sortDirection={sortDirection}
+          />
           <Pagination
             page={currentPage}
             pageCount={pageCount}
