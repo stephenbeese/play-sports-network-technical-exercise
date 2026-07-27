@@ -26,7 +26,7 @@ export function ChatPanel({ rows, daily, filtersActive }: ChatPanelProps) {
   const [input, setInput] = useState('')
   const [showSettings, setShowSettings] = useState(false)
   const [keyDraft, setKeyDraft] = useState('')
-  const { messages, sending, demoMode, apiKey, setApiKey, send, clear } = useChat(
+  const { messages, sending, demoMode, proxyAvailable, apiKey, setApiKey, send, clear } = useChat(
     rows,
     daily,
     filtersActive,
@@ -86,20 +86,24 @@ export function ChatPanel({ rows, daily, filtersActive }: ChatPanelProps) {
                   Clear
                 </button>
               )}
-              <button
-                type="button"
-                onClick={() => {
-                  setKeyDraft(apiKey)
-                  setShowSettings((v) => !v)
-                }}
-                className="whitespace-nowrap rounded-lg border border-[var(--border)] px-2 py-1 text-xs text-[var(--text)] transition-colors hover:bg-[var(--social-bg)]"
-              >
-                {apiKey ? 'Key ✓' : 'Add key'}
-              </button>
+              {/* The deployed site answers via the server-side proxy, so a
+                  pasted key is only relevant when running locally. */}
+              {!proxyAvailable && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setKeyDraft(apiKey)
+                    setShowSettings((v) => !v)
+                  }}
+                  className="whitespace-nowrap rounded-lg border border-[var(--border)] px-2 py-1 text-xs text-[var(--text)] transition-colors hover:bg-[var(--social-bg)]"
+                >
+                  {apiKey ? 'Key ✓' : 'Add key'}
+                </button>
+              )}
               </div>
             </div>
 
-            {showSettings && (
+            {showSettings && !proxyAvailable && (
               <div className="flex gap-2 border-b border-[var(--border)] px-4 py-3">
                 <input
                   type="password"

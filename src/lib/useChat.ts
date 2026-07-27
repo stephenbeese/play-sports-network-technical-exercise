@@ -173,6 +173,8 @@ export interface Chat {
   sending: boolean
   /** True when no OpenAI key is configured and the local engine answers. */
   demoMode: boolean
+  /** True when the Vercel proxy answers, so no client-side key is needed. */
+  proxyAvailable: boolean
   apiKey: string
   setApiKey: (key: string) => void
   send: (question: string) => Promise<void>
@@ -242,5 +244,5 @@ export function useChat(rows: VideoRow[], daily: DailyPoint[], filtersActive = f
 
   const clear = useCallback(() => setMessages([]), [])
 
-  return { messages, sending, demoMode: !apiKey && !proxyAvailable, apiKey, setApiKey, send, clear }
+  return { messages, sending, demoMode: !apiKey && !proxyAvailable, proxyAvailable, apiKey, setApiKey, send, clear }
 }
