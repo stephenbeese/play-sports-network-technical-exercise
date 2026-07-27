@@ -144,15 +144,16 @@ describe('dashboard', () => {
       await user.click(screen.getByRole('button', { name: 'Next' }))
       await waitFor(() => {
         expect(screen.getByText(`11–${videoCount}`)).toBeInTheDocument()
+        // Row exit animations mean outgoing rows linger briefly in the DOM.
+        expect(visibleRowCount()).toBe(videoCount - DEFAULT_PAGE_SIZE)
       })
-      expect(visibleRowCount()).toBe(videoCount - DEFAULT_PAGE_SIZE)
 
       // Growing the page size snaps back to page 1 and shows everything.
       await user.selectOptions(screen.getByLabelText('Rows per page'), '25')
       await waitFor(() => {
         expect(screen.getByText(`1–${videoCount}`)).toBeInTheDocument()
+        expect(visibleRowCount()).toBe(videoCount)
       })
-      expect(visibleRowCount()).toBe(videoCount)
     })
   })
 
@@ -172,8 +173,8 @@ describe('dashboard', () => {
 
       await waitFor(() => {
         expect(channelSelect.value).toBe('all')
+        expect(visibleRowCount()).toBe(DEFAULT_PAGE_SIZE)
       })
-      expect(visibleRowCount()).toBe(DEFAULT_PAGE_SIZE)
       expect(reset).toBeDisabled()
     })
   })

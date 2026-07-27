@@ -1,5 +1,7 @@
+import { motion } from 'motion/react'
 import type { VideoRow } from '../types'
 import { formatCompact, formatNumber, formatWatchTime } from '../lib/format'
+import { fadeUp, staggerContainer } from '../lib/motion'
 
 interface KpiCardsProps {
   rows: VideoRow[]
@@ -57,12 +59,19 @@ export function KpiCards({ rows }: KpiCardsProps) {
   ]
 
   return (
-    <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+    <motion.div
+      variants={staggerContainer}
+      initial="hidden"
+      animate="visible"
+      className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4"
+    >
       {kpis.map((kpi) => (
-        <div
+        <motion.div
           key={kpi.label}
+          variants={fadeUp}
+          whileHover={{ y: -2 }}
           style={{ borderTopColor: kpi.accent }}
-          className="rounded-2xl border border-t-4 border-[var(--border)] bg-[var(--bg)] p-5 shadow-sm"
+          className="rounded-2xl border border-t-4 border-[var(--border)] bg-[var(--bg)] p-5 shadow-sm transition-shadow hover:shadow-md"
         >
           <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text)]">
             {kpi.label}
@@ -71,8 +80,8 @@ export function KpiCards({ rows }: KpiCardsProps) {
             {kpi.value}
           </p>
           <p className="mt-1 text-xs text-[var(--text)]">{kpi.hint}</p>
-        </div>
+        </motion.div>
       ))}
-    </div>
+    </motion.div>
   )
 }

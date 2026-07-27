@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { AnimatePresence, motion } from 'motion/react'
 
 interface SearchInputProps {
   value: string
@@ -112,8 +113,13 @@ export function SearchInput({
         onKeyDown={handleKeyDown}
         className={className}
       />
+      <AnimatePresence>
       {showList && (
-        <ul
+        <motion.ul
+          initial={{ opacity: 0, y: -4, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: -4, scale: 0.98 }}
+          transition={{ duration: 0.12, ease: 'easeOut' }}
           id="search-suggestions"
           role="listbox"
           className="absolute z-10 mt-1 max-h-72 w-full overflow-auto rounded-lg border border-[var(--border)] bg-[var(--bg)] py-1 text-sm shadow-lg"
@@ -136,8 +142,9 @@ export function SearchInput({
               {suggestion}
             </li>
           ))}
-        </ul>
+        </motion.ul>
       )}
+      </AnimatePresence>
     </div>
   )
 }

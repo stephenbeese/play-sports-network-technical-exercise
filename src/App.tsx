@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { AnimatePresence, MotionConfig, motion } from 'motion/react'
 import { Charts } from './components/Charts'
 import { Filters } from './components/Filters'
 import { KpiCards } from './components/KpiCards'
@@ -43,7 +44,8 @@ function App() {
   )
 
   return (
-    <Layout>
+    <MotionConfig reducedMotion="user">
+      <Layout>
       {loading && (
         <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg)] p-10 text-center text-sm text-[var(--text)]">
           Loading videos…
@@ -79,32 +81,43 @@ function App() {
           />
           <KpiCards rows={filteredRows} />
           <Tabs value={tab} onChange={setTab} />
-          {tab === 'table' ? (
-            <>
-              <VideoTable
-                rows={pageRows}
-                startIndex={startIndex}
-                sortKey={sortKey}
-                sortDirection={sortDirection}
-                onSortKeyChange={setSortKey}
-                onSortDirectionChange={setSortDirection}
-              />
-              <Pagination
-                page={currentPage}
-                pageCount={pageCount}
-                pageSize={pageSize}
-                totalItems={filteredRows.length}
-                pageSizeOptions={PAGE_SIZE_OPTIONS}
-                onPageChange={setPage}
-                onPageSizeChange={setPageSize}
-              />
-            </>
-          ) : (
-            <Charts rows={filteredRows} daily={filteredDaily} />
-          )}
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={tab}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.15, ease: 'easeOut' }}
+            >
+              {tab === 'table' ? (
+                <>
+                  <VideoTable
+                    rows={pageRows}
+                    startIndex={startIndex}
+                    sortKey={sortKey}
+                    sortDirection={sortDirection}
+                    onSortKeyChange={setSortKey}
+                    onSortDirectionChange={setSortDirection}
+                  />
+                  <Pagination
+                    page={currentPage}
+                    pageCount={pageCount}
+                    pageSize={pageSize}
+                    totalItems={filteredRows.length}
+                    pageSizeOptions={PAGE_SIZE_OPTIONS}
+                    onPageChange={setPage}
+                    onPageSizeChange={setPageSize}
+                  />
+                </>
+              ) : (
+                <Charts rows={filteredRows} daily={filteredDaily} />
+              )}
+            </motion.div>
+          </AnimatePresence>
         </>
-      )}
-    </Layout>
+        )}
+      </Layout>
+    </MotionConfig>
   )
 }
 
