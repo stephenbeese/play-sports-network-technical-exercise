@@ -17,7 +17,7 @@ export interface PostStat {
   comments: number
   shares: number
   views: number
-  /** Watch time in seconds. */
+  /** Estimated watch time in minutes. */
   watchtime: number
 }
 
@@ -35,7 +35,7 @@ export interface VideoRow extends Post {
   comments: number
   shares: number
   views: number
-  /** Total watch time in seconds. */
+  /** Total estimated watch time in minutes. */
   watchtime: number
   /** likes + comments + shares. */
   engagements: number

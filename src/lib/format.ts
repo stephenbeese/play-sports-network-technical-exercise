@@ -15,10 +15,19 @@ export function formatCompact(value: number): string {
   })
 }
 
-/** Convert a watch-time value in seconds to a compact "11.7k hrs" string. */
-export function formatWatchTime(seconds: number): string {
-  const hours = seconds / 3600
+/** Convert a watch-time value in minutes to a compact "11.7k hrs" string. */
+export function formatWatchTime(minutes: number): string {
+  const hours = minutes / 60
   return `${formatCompact(hours)} hrs`
+}
+
+/**
+ * Format a 0..1 ratio as a rounded percentage, e.g. 0.486 -> "49%".
+ * Returns "—" when the ratio isn't a finite number (e.g. no views).
+ */
+export function formatPercent(ratio: number): string {
+  if (!Number.isFinite(ratio)) return '—'
+  return `${Math.round(ratio * 100)}%`
 }
 
 /** Convert a video length in milliseconds to "m:ss" (or "h:mm:ss"). */

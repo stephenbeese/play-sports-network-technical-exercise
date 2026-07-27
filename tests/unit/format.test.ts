@@ -4,6 +4,7 @@ import {
   formatDate,
   formatDuration,
   formatNumber,
+  formatPercent,
   formatWatchTime,
 } from '../../src/lib/format'
 
@@ -41,13 +42,25 @@ describe('formatCompact', () => {
 })
 
 describe('formatWatchTime', () => {
-  it('converts seconds to hours with a unit suffix', () => {
-    expect(formatWatchTime(3600)).toBe('1 hrs')
+  it('converts minutes to hours with a unit suffix', () => {
+    expect(formatWatchTime(60)).toBe('1 hrs')
   })
 
   it('uses compact notation for large hour counts', () => {
-    // 42,120,000s / 3600 = 11,700 hrs -> "11.7k hrs".
-    expect(formatWatchTime(11700 * 3600)).toBe('11.7k hrs')
+    // 702,000 min / 60 = 11,700 hrs -> "11.7k hrs".
+    expect(formatWatchTime(11700 * 60)).toBe('11.7k hrs')
+  })
+})
+
+describe('formatPercent', () => {
+  it('rounds a 0..1 ratio to a whole percentage', () => {
+    expect(formatPercent(0.486)).toBe('49%')
+    expect(formatPercent(1)).toBe('100%')
+  })
+
+  it('returns a dash for non-finite ratios', () => {
+    expect(formatPercent(Number.NaN)).toBe('—')
+    expect(formatPercent(Number.POSITIVE_INFINITY)).toBe('—')
   })
 })
 
