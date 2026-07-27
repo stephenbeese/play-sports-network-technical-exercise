@@ -56,6 +56,7 @@ The main features include:
 - **Theming** - five built-in palettes (Light, Dark, Ocean, Forest, Sunset) via a header theme switcher. The choice is persisted to `localStorage` and the initial theme respects the OS `prefers-color-scheme` setting.
 - **Animations** - subtle motion (via [Motion](https://motion.dev/)) that guides attention without getting in the way: KPI cards fade and drift up with a staggered entrance, tab switches cross-fade, table rows and the search autocomplete animate in and out, buttons respond to hover/press, and the charts draw in on load. Theme changes ease smoothly between colours, and every animation is disabled automatically for users with the OS `prefers-reduced-motion` setting.
 - **Polish** - fully responsive layout, tabular-aligned numbers, human-friendly number/duration/date formatting, and explicit loading and error states with a cancellable (`AbortController`) data fetch.
+- **Chat assistant** - a floating chatbot that answers questions about the data ("top video by views", "which channel has the most watch time?"). It works with zero setup in demo mode, and upgrades to free-form answers via OpenAI when a key is supplied - see [Chat assistant](#chat-assistant).
 
 
 
@@ -180,6 +181,66 @@ yarn lint      # run ESLint
 
 
 
+### Chat assistant
+
+The chat bubble in the bottom-right corner works in three modes, picking the
+best one available:
+
+- **Hosted OpenAI mode (the deployed site):** on the Vercel deployment, chat
+requests go through a serverless function (`api/chat.ts`) that holds the
+OpenAI key server-side — so free-form questions work for every visitor with
+no setup and no key ever reaching the browser. Answers stream from
+`gpt-4o-mini` with the currently *filtered* video data provided as context,
+and the model is instructed to answer only from that data.
+- **Demo mode (running locally, no setup):** common questions ("top video by
+views", "which channel has the most watch time?", "how many Shorts vs
+long-form?", "total engagements") are answered locally by computing over the
+same joined data that drives the dashboard. No network calls, no key, no cost.
+- **Bring-your-own-key (running locally, optional):** for free-form questions
+without the deployed proxy, either paste an OpenAI API key into the panel
+(stored only in your browser's `localStorage`), or copy `.env.example` to
+`.env.local` and set `VITE_OPENAI_API_KEY`, then restart the dev server.
+
+#### How the chatbot works
+
+The design goal is **accuracy over cleverness** — every number the bot quotes
+must match what's on screen:
+
+- **All aggregation happens in code, never in the model.** LLMs are unreliable
+at arithmetic over long lists - early versions that received the ~2,300 raw
+rows produced plausible-but-wrong totals. Instead the app precomputes an exact
+fact sheet (overall totals, per-channel/per-format/per-month rollups, top-15
+lists) using the same joined data that drives the KPI cards and charts, and
+the model's only job is to pick the right precomputed number and narrate it.
+It's explicitly instructed never to do its own arithmetic and to say when a
+question falls outside the fact sheet rather than guess.
+- **Demo mode is the same idea without the model:** a small intent matcher
+(`src/lib/localAnswers.ts`) routes common questions straight to those code
+computed aggregates, so the chatbot is fully usable with no key at all.
+- **Filter awareness:** the bot answers over the currently *filtered* data
+(like everything else on the page), and prefixes answers with "Across your
+current filters…" when any filter is active so a filtered total is never
+mistaken for a global one.
+
+**Security note:** a key must never be baked into a public build — any
+`VITE_` variable is readable in the shipped JavaScript. That's why the
+deployed site uses the serverless proxy: the key lives in a Vercel
+environment variable, requests are validated and rate-limited per IP in
+`api/chat.ts`, and the OpenAI account carries a spend cap. The pasted-key
+path is for local review only.
+
+### Deployment (Vercel)
+
+The site deploys to [Vercel](https://vercel.com/) as a Vite static build plus
+the `api/chat.ts` edge function:
+
+1. Import the GitHub repo in the Vercel dashboard — the Vite preset needs no
+configuration (build `yarn build`, output `dist/`).
+2. Add an `OPENAI_API_KEY` environment variable (Project → Settings →
+Environment Variables). This powers the chat proxy and is never exposed to
+the client.
+3. Every push to `main` redeploys automatically.
+
 ### Tests
 
 Three layers, sharing one deterministic fixture in `tests/fixtures/`: **unit** (Vitest) for the formatting helpers and derivation hooks, **integration** (Vitest + React Testing Library) rendering the wired-up `App` against a mocked `fetch`, and **end-to-end** (Playwright) driving real user flows in Chromium against a production build.
@@ -199,7 +260,7 @@ yarn test:e2e                      # end-to-end (builds and previews automatical
 - **Push aggregation to the data layer.** `poststats.json` is shipped as a ~20MB row-per-record array and loaded entirely in the browser, where the join and all aggregations happen client-side. That's fine for a local exercise, but it doesn't scale well. I'd serve the data through a small API so filtering and grouping run on demand instead of loading the full dataset up front.
 - **Wire the tests into CI.** Integration (Vitest) and end-to-end (Playwright) suites now exist (see [Tests](#tests)); the next step is running them, alongside type-checking and linting, as Pull Request checks so nothing that breaks the build can land on `main`. This matters especially once multiple developers are working on the project.
 - **BDD/ATDD approach.** If I had more time I would have employed a BDD (Behaviour Driven Development) or an ATDD (Acceptance Testing Driven Development) approach. Using either of these approaches with using a red, green refactor methodology for tests I would have built a much more robust and production ready application. Writing code this way ensures the outcomes are well defined before the code is implemented. This approach helps later on in development ensuring that the intended functionality is preserved when iterating and adding new features and refactoring.
-- **AI chatbot.** A natural-language assistant so users could ask questions like "which channel had the most watch time last month?" or "show me the top 5 shorts by engagement" instead of manually driving the filters. The cleanest approach would be a small backend endpoint that takes the user's question plus the current filter context, uses an LLM to translate it into a structured query (e.g. a SQL statement run against DuckDB, or a call into the existing aggregation layer), and returns both a short written answer and a chart/table. Keeping the LLM as a text-to-query translator keeps answers accurate and auditable, and the results could reuse the same Recharts components already in the dashboard.
+- **Evolve the AI chatbot.** A chat assistant is now built (see [Chat assistant](#chat-assistant)) — it answers over a precomputed fact sheet, which keeps every number exact but limits the questions it can cover. The next step would be a small backend endpoint that uses the LLM as a text-to-query translator (e.g. generating SQL run against DuckDB, or calls into the existing aggregation layer), returning both a written answer and a chart/table reusing the dashboard's Recharts components. That keeps answers accurate and auditable while opening up arbitrary questions, and moves the OpenAI key server-side.
 
 ## AI & Tooling reflection
 

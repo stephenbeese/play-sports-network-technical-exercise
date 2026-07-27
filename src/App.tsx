@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { AnimatePresence, MotionConfig, motion } from 'motion/react'
+import { ChatPanel } from './components/ChatPanel'
 import { Charts } from './components/Charts'
 import { Filters } from './components/Filters'
 import { KpiCards } from './components/KpiCards'
@@ -114,6 +115,7 @@ function App() {
               )}
             </motion.div>
           </AnimatePresence>
+          <ChatPanel rows={filteredRows} daily={filteredDaily} filtersActive={filters.canReset} />
         </>
         )}
       </Layout>

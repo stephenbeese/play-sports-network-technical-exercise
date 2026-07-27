@@ -51,8 +51,8 @@ export function useVideoData(): VideoData {
     async function load() {
       try {
         const [postsRes, statsRes] = await Promise.all([
-          fetch('/data/posts.json', { signal: controller.signal }),
-          fetch('/data/poststats.json', { signal: controller.signal }),
+          fetch(`${import.meta.env.BASE_URL}data/posts.json`, { signal: controller.signal }),
+          fetch(`${import.meta.env.BASE_URL}data/poststats.json`, { signal: controller.signal }),
         ])
 
         if (!postsRes.ok || !statsRes.ok) {
