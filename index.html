@@ -17,6 +17,10 @@
                 ? 'dark'
                 : 'light'
           document.documentElement.setAttribute('data-theme', theme)
+          // Mirror of THEMES[].isDark in src/lib/themes.ts (pre-hydration, no imports).
+          if (theme === 'dark' || theme === 'ocean') {
+            document.documentElement.setAttribute('data-dark', '')
+          }
         } catch (e) {}
       })()
     </script>

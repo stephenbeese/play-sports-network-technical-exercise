@@ -1,13 +1,8 @@
 @import 'tailwindcss';
 
-@custom-variant dark (
-  &:where(
-      [data-theme='dark'],
-      [data-theme='dark'] *,
-      [data-theme='ocean'],
-      [data-theme='ocean'] *
-    )
-);
+/* `data-dark` is set alongside `data-theme` from THEMES[].isDark (themes.ts),
+   so new palettes only need declaring in one place. */
+@custom-variant dark (&:where([data-dark], [data-dark] *));
 
 :root {
   --text: #6b6375;
@@ -32,7 +27,7 @@
 
   font: 18px/145% var(--sans);
   letter-spacing: 0.18px;
-  color-scheme: light dark;
+  color-scheme: light;
   color: var(--text);
   background: var(--bg);
   font-synthesis: none;
@@ -113,8 +108,12 @@
     rgba(124, 45, 18, 0.12) 0 10px 15px -3px, rgba(124, 45, 18, 0.06) 0 4px 6px -2px;
 }
 
-:root[data-theme='dark'] #social .button-icon,
-:root[data-theme='ocean'] #social .button-icon {
+/* Native form controls (date pickers, selects, scrollbars) follow the palette. */
+:root[data-dark] {
+  color-scheme: dark;
+}
+
+:root[data-dark] #social .button-icon {
   filter: invert(1) brightness(2);
 }
 
@@ -156,6 +155,15 @@ body,
   *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/* 16px minimum stops iOS Safari auto-zooming when a field gets focus. */
+@media (max-width: 640px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
   }
 }
 

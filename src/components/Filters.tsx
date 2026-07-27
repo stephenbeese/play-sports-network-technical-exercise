@@ -27,7 +27,8 @@ interface FiltersProps {
 const selectClass =
   'rounded-lg border border-[var(--border)] bg-[var(--bg)] px-2.5 py-2 text-sm text-[var(--text-h)] transition-colors hover:bg-[var(--social-bg)]'
 
-const fieldClass = 'flex flex-col gap-1.5'
+// On phones each field takes half a row (search and reset go full width below).
+const fieldClass = 'flex flex-col gap-1.5 max-sm:min-w-[calc(50%-0.5rem)] max-sm:flex-1'
 
 const labelClass =
   'text-[11px] font-semibold uppercase tracking-wider text-[var(--text)]'
@@ -55,7 +56,7 @@ export function Filters({
   const { t } = useTranslation()
   return (
     <div className="mb-6 flex flex-wrap items-end gap-4 rounded-2xl border border-[var(--border)] bg-[var(--bg)] p-4 shadow-sm">
-      <label className={`${fieldClass} min-w-56 flex-1`}>
+      <label className={`${fieldClass} flex-1 sm:min-w-56 max-sm:w-full`}>
         <span className={labelClass}>{t('filters.searchLabel')}</span>
         <SearchInput
           value={search}
@@ -127,7 +128,7 @@ export function Filters({
         whileTap={{ scale: 0.97 }}
         onClick={onReset}
         disabled={!canReset}
-        className="rounded-lg bg-[var(--accent)] px-5 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+        className="rounded-lg bg-[var(--accent)] px-5 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40 max-sm:w-full"
       >
         {t('filters.reset')}
       </motion.button>
