@@ -19,6 +19,10 @@
   --accent-bg: rgba(170, 59, 255, 0.1);
   --accent-border: rgba(170, 59, 255, 0.5);
   --social-bg: rgba(244, 243, 236, 0.5);
+  /* Per-metric colours (light themes): saturated for contrast on light bg. */
+  --metric-views: #2563eb;
+  --metric-watchtime: #65a30d;
+  --metric-engagements: #e11d48;
   --shadow:
     rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
@@ -51,6 +55,10 @@
   --accent-bg: rgba(192, 132, 252, 0.15);
   --accent-border: rgba(192, 132, 252, 0.5);
   --social-bg: rgba(47, 48, 58, 0.5);
+  /* Per-metric colours (dark themes): brighter for contrast on dark bg. */
+  --metric-views: #60a5fa;
+  --metric-watchtime: #a3e635;
+  --metric-engagements: #fb7185;
   --shadow:
     rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
 }
@@ -66,6 +74,11 @@
   --accent-bg: rgba(56, 189, 248, 0.15);
   --accent-border: rgba(56, 189, 248, 0.5);
   --social-bg: rgba(30, 41, 59, 0.5);
+  /* Ocean is dark-based; use the brighter metric palette. Views leans indigo so
+     it stays distinct from the cyan accent. */
+  --metric-views: #818cf8;
+  --metric-watchtime: #a3e635;
+  --metric-engagements: #fb7185;
   --shadow:
     rgba(0, 0, 0, 0.45) 0 10px 15px -3px, rgba(0, 0, 0, 0.3) 0 4px 6px -2px;
 }

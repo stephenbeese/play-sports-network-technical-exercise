@@ -122,7 +122,7 @@ export function Filters({
         type="button"
         onClick={onReset}
         disabled={!canReset}
-        className="rounded-lg bg-lime-300 px-5 py-2 text-sm font-semibold text-lime-950 transition-colors hover:bg-lime-400 disabled:cursor-not-allowed disabled:opacity-40 dark:bg-lime-400 dark:text-lime-950 dark:hover:bg-lime-300"
+        className="rounded-lg bg-[var(--accent)] px-5 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
       >
         Reset
       </button>
