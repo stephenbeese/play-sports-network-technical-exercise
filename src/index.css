@@ -1,7 +1,5 @@
 @import 'tailwindcss';
 
-/* `data-dark` is set alongside `data-theme` from THEMES[].isDark (themes.ts),
-   so new palettes only need declaring in one place. */
 @custom-variant dark (&:where([data-dark], [data-dark] *));
 
 :root {
@@ -14,7 +12,6 @@
   --accent-bg: rgba(170, 59, 255, 0.1);
   --accent-border: rgba(170, 59, 255, 0.5);
   --social-bg: rgba(244, 243, 236, 0.5);
-  /* Per-metric colours (light themes): saturated for contrast on light bg. */
   --metric-views: #2563eb;
   --metric-watchtime: #65a30d;
   --metric-engagements: #e11d48;
@@ -50,7 +47,6 @@
   --accent-bg: rgba(192, 132, 252, 0.15);
   --accent-border: rgba(192, 132, 252, 0.5);
   --social-bg: rgba(47, 48, 58, 0.5);
-  /* Per-metric colours (dark themes): brighter for contrast on dark bg. */
   --metric-views: #60a5fa;
   --metric-watchtime: #a3e635;
   --metric-engagements: #fb7185;
@@ -58,7 +54,6 @@
     rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
 }
 
-/* Ocean — dark navy base with a cyan accent. */
 :root[data-theme='ocean'] {
   --text: #94a3b8;
   --text-h: #e2e8f0;
@@ -69,8 +64,6 @@
   --accent-bg: rgba(56, 189, 248, 0.15);
   --accent-border: rgba(56, 189, 248, 0.5);
   --social-bg: rgba(30, 41, 59, 0.5);
-  /* Ocean is dark-based; use the brighter metric palette. Views leans indigo so
-     it stays distinct from the cyan accent. */
   --metric-views: #818cf8;
   --metric-watchtime: #a3e635;
   --metric-engagements: #fb7185;
@@ -78,7 +71,6 @@
     rgba(0, 0, 0, 0.45) 0 10px 15px -3px, rgba(0, 0, 0, 0.3) 0 4px 6px -2px;
 }
 
-/* Forest — warm off-white base with a green accent. */
 :root[data-theme='forest'] {
   --text: #55705c;
   --text-h: #14261a;
@@ -93,7 +85,6 @@
     rgba(20, 38, 26, 0.12) 0 10px 15px -3px, rgba(20, 38, 26, 0.06) 0 4px 6px -2px;
 }
 
-/* Sunset — soft warm base with an orange accent. */
 :root[data-theme='sunset'] {
   --text: #8a5a4a;
   --text-h: #3b1d12;
@@ -108,7 +99,6 @@
     rgba(124, 45, 18, 0.12) 0 10px 15px -3px, rgba(124, 45, 18, 0.06) 0 4px 6px -2px;
 }
 
-/* Native form controls (date pickers, selects, scrollbars) follow the palette. */
 :root[data-dark] {
   color-scheme: dark;
 }
@@ -133,13 +123,10 @@ body {
   margin: 0;
 }
 
-/* Always show the scrollbar track so content-height changes (filtering,
-   pagination, tab switches) never shift the centred layout sideways. */
 html {
   overflow-y: scroll;
 }
 
-/* Cross-fade surface colours when the theme changes instead of snapping. */
 body,
 #root,
 [class*='bg-[var(--bg)]'] {
@@ -158,7 +145,6 @@ body,
   }
 }
 
-/* 16px minimum stops iOS Safari auto-zooming when a field gets focus. */
 @media (max-width: 640px) {
   input,
   select,

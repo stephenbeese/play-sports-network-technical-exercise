@@ -1,4 +1,3 @@
-# Data / ETL (used by jupyter_notebook/etl.ipynb)
 pandas==3.0.5
 duckdb==1.5.5
 numpy==2.5.1
@@ -6,12 +5,10 @@ python-dateutil==2.9.0.post0
 six==1.17.0
 matplotlib
 
-# Jupyter tooling to execute the notebook (nbconvert --execute) and open it interactively
 nbconvert
 jupyterlab
 notebook
 
-# Jupyter / IPython runtime needed to execute the notebook
 appnope==0.1.4
 asttokens==3.0.2
 comm==0.2.3

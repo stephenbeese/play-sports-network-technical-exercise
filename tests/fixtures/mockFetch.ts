@@ -8,10 +8,6 @@ function jsonResponse(data: unknown): Response {
   } as Response
 }
 
-/**
- * Installs a `fetch` stub that serves the fixture for the two data files the
- * app requests. Returns the spy so tests can assert on calls if needed.
- */
 export function mockDataFetch() {
   const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
     const url = typeof input === 'string' ? input : input.toString()
@@ -23,7 +19,6 @@ export function mockDataFetch() {
   return fetchMock
 }
 
-/** Installs a `fetch` stub that reports the data files as unavailable. */
 export function mockFailedFetch() {
   const fetchMock = vi.fn(async () => ({ ok: false }) as Response)
   vi.stubGlobal('fetch', fetchMock)

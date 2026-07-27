@@ -5,7 +5,6 @@ import { SYSTEM_PROMPT } from '../../src/lib/chatPrompt'
 const CONTEXT = 'OVERALL: total_views=123'
 const USER_MSG = { role: 'user', content: 'top video?' }
 
-/** Build a POST request; each test uses its own IP so the shared rate-limit map never bleeds between tests. */
 function post(body: unknown, ip: string): Request {
   return new Request('http://localhost/api/chat', {
     method: 'POST',
@@ -123,7 +122,6 @@ describe('api/chat handler', () => {
           headers: {
             'Content-Type': 'application/json',
             'x-real-ip': ip,
-            // Rotating forwarded-for must NOT reset the limit.
             'x-forwarded-for': `192.0.2.${i}`,
           },
           body: JSON.stringify({ context: CONTEXT, messages: [USER_MSG] }),

@@ -3,7 +3,6 @@ import { AnimatePresence, motion } from 'motion/react'
 
 interface SearchInputProps {
   value: string
-  /** Candidate strings (e.g. video titles and channel names) to suggest from. */
   suggestions: string[]
   placeholder?: string
   className?: string
@@ -12,7 +11,6 @@ interface SearchInputProps {
 
 const MAX_SUGGESTIONS = 8
 
-/** Search box with a keyboard-accessible autocomplete dropdown. */
 export function SearchInput({
   value,
   suggestions,

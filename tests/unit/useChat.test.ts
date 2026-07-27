@@ -24,7 +24,6 @@ const rows: VideoRow[] = [
 ]
 const daily: DailyPoint[] = [{ date: '2025-01-02', views: 1000, engagements: 50 }]
 
-/** SSE stream body with the given tokens, in OpenAI's delta format. */
 function sseBody(tokens: string[]): string {
   return (
     tokens
@@ -43,7 +42,6 @@ afterEach(() => {
 
 describe('useChat', () => {
   it('answers locally in demo mode (no key, no proxy)', async () => {
-    // Probe fails → no proxy; no key stored → demo mode.
     vi.stubGlobal('fetch', vi.fn(async () => Promise.reject(new Error('offline'))))
     const { result } = renderHook(() => useChat(rows, daily))
 
@@ -53,13 +51,12 @@ describe('useChat', () => {
     const answer = result.current.messages.at(-1)!
     expect(answer.role).toBe('assistant')
     expect(answer.content).toContain('Big hit')
-    // No network call is made for a demo-mode answer (only the failed probe).
     expect(vi.mocked(fetch).mock.calls.every(([url]) => url === '/api/chat')).toBe(true)
   })
 
   it('sends context + history (no system role) to the proxy and streams the reply', async () => {
     const fetchMock = vi.fn(async (_url: RequestInfo | URL, init?: RequestInit) => {
-      if (!init) return Response.json({ ok: true }) // GET probe
+      if (!init) return Response.json({ ok: true })
       return new Response(sseBody(['Hello', ' world']), { status: 200 })
     })
     vi.stubGlobal('fetch', fetchMock)
@@ -73,11 +70,10 @@ describe('useChat', () => {
     const postCall = fetchMock.mock.calls.find(([, init]) => init?.method === 'POST')!
     expect(postCall[0]).toBe('/api/chat')
     const body = JSON.parse(postCall[1]!.body as string)
-    // The proxy owns the system prompt — the client only ships the fact sheet.
     expect(body.messages.every((m: { role: string }) => m.role !== 'system')).toBe(true)
     expect(body.messages.at(-1)).toEqual({ role: 'user', content: 'top video?' })
     expect(body.context).toContain('total_views=1000')
-    expect(body.context).toContain('Across your current filters') // filtersActive note
+    expect(body.context).toContain('Across your current filters')
   })
 
   it('surfaces a proxy error as an assistant warning message', async () => {

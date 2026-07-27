@@ -29,12 +29,10 @@ export interface ChartData {
   formatSplit: FormatSplitEntry[]
 }
 
-/** Shorten a long video title for use as a compact axis label. */
 function shortTitle(title: string): string {
   return title.length > 22 ? `${title.slice(0, 22)}…` : title
 }
 
-/** Derives the aggregated series that back the charts from the filtered videos. */
 export function useChartData(rows: VideoRow[]): ChartData {
   const topVideos = useMemo(
     () =>

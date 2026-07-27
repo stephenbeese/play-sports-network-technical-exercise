@@ -12,7 +12,6 @@ export interface ChatMessage {
 
 const KEY_STORAGE = 'openai_api_key'
 
-/** OpenAI key from the paste-in-panel field or a local .env — never committed. */
 function storedKey(): string {
   return (
     localStorage.getItem(KEY_STORAGE) ||
@@ -21,11 +20,6 @@ function storedKey(): string {
   )
 }
 
-/**
- * Precomputed fact sheet the model answers from. Aggregating in code (exact)
- * rather than handing the model thousands of raw rows to sum (unreliable)
- * keeps its answers consistent with the dashboard.
- */
 function buildContext(rows: VideoRow[], daily: DailyPoint[]): string {
   const sum = (metric: 'views' | 'engagements' | 'watchtime') =>
     rows.reduce((total, row) => total + row[metric], 0)
@@ -108,9 +102,6 @@ async function streamOpenAI(
       ? 'IMPORTANT: dashboard filters are active, so the fact sheet covers a filtered subset — start every answer with "Across your current filters,".\n\n'
       : '') + buildContext(rows, daily)
 
-  // A pasted key calls OpenAI directly; otherwise the Vercel proxy
-  // (/api/chat) holds the key server-side, injects the system prompt itself
-  // (so callers can't replace it), and relays the same SSE stream.
   const res = apiKey
     ? await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
@@ -150,7 +141,7 @@ async function streamOpenAI(
         const token = JSON.parse(data).choices?.[0]?.delta?.content
         if (token) onToken(token)
       } catch {
-        // ignore malformed keep-alive chunks
+        continue
       }
     }
   }
@@ -159,9 +150,7 @@ async function streamOpenAI(
 export interface Chat {
   messages: ChatMessage[]
   sending: boolean
-  /** True when no OpenAI key is configured and the local engine answers. */
   demoMode: boolean
-  /** True when the Vercel proxy answers, so no client-side key is needed. */
   proxyAvailable: boolean
   apiKey: string
   setApiKey: (key: string) => void
@@ -169,20 +158,12 @@ export interface Chat {
   clear: () => void
 }
 
-/**
- * Chat state for the dashboard assistant. With no API key it answers from the
- * local demo engine; with a key it streams from OpenAI with the (filtered)
- * rows serialized into the system prompt.
- */
 export function useChat(rows: VideoRow[], daily: DailyPoint[], filtersActive = false): Chat {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [sending, setSending] = useState(false)
   const [apiKey, setApiKeyState] = useState(storedKey)
   const [proxyAvailable, setProxyAvailable] = useState(false)
 
-  // Detect the Vercel proxy (api/chat.ts). Present on the deployed site;
-  // absent under `yarn dev`/`yarn preview`, where demo mode or a pasted key
-  // takes over.
   useEffect(() => {
     fetch('/api/chat')
       .then((res) => res.ok && res.headers.get('content-type')?.includes('json') && setProxyAvailable(true))
@@ -205,7 +186,6 @@ export function useChat(rows: VideoRow[], daily: DailyPoint[], filtersActive = f
 
       if (!apiKey && !proxyAvailable) {
         const local = answerLocally(trimmed, rows, daily)
-        // Flag filtered numbers so they aren't mistaken for global totals.
         const answer =
           local && filtersActive ? `Across your current filters: ${local}` : (local ?? DEMO_FALLBACK)
         setMessages([...history, { role: 'assistant', content: answer }])

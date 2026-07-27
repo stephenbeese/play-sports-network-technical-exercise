@@ -1,6 +1,5 @@
 import type { SortDirection, SortKey } from './sort'
 
-/** Sentinel value for "no filter applied" in the channel/format dropdowns. */
 export const ALL = 'all'
 
 export const PAGE_SIZE_OPTIONS = [10, 25, 50, 100]

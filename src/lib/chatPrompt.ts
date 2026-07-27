@@ -1,5 +1,3 @@
-// Shared between the browser (bring-your-own-key path) and the Vercel proxy
-// (api/chat.ts), which injects it server-side so callers can't replace it.
 export const TOP_N = 15
 
 export const SYSTEM_PROMPT = `You are an analyst for a sports video performance dashboard.

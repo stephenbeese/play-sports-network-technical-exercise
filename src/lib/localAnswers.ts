@@ -2,11 +2,6 @@ import type { VideoRow } from '../types'
 import { formatNumber, formatWatchTime } from './format'
 import type { DailyPoint } from './useFilteredVideos'
 
-/**
- * Keyword-based answer engine so the chatbot works with no API key ("demo
- * mode"). Handles the common leaderboard/total questions directly from the
- * joined rows; returns null when the question doesn't match a known intent.
- */
 
 type Metric = 'views' | 'engagements' | 'watchtime'
 
@@ -60,7 +55,6 @@ const MONTHS = [
   'july', 'august', 'september', 'october', 'november', 'december',
 ]
 
-/** "views for december 2025" -> monthly totals from the daily stats. */
 function monthlyTotals(q: string, daily: DailyPoint[]): string | null {
   const monthIndex = MONTHS.findIndex((m) => q.includes(m) || q.includes(`${m.slice(0, 3)} `))
   const year = /\b(20\d{2})\b/.exec(q)?.[1]
@@ -81,7 +75,6 @@ function monthlyTotals(q: string, daily: DailyPoint[]): string | null {
   return `In ${label} the selected videos recorded ${formatNumber(views)} views and ${formatNumber(engagements)} engagements.`
 }
 
-/** Answer a question from the rows, or null if no known intent matches. */
 export function answerLocally(
   question: string,
   rows: VideoRow[],
@@ -112,6 +105,5 @@ export function answerLocally(
   return null
 }
 
-/** Shown when demo mode can't match the question. */
 export const DEMO_FALLBACK =
   'Demo mode can answer questions like “top video by views”, “which channel has the most watch time”, “how many Shorts vs long-form?”, “total engagements” or “total views for December 2025”. Add an OpenAI API key for free-form questions.'

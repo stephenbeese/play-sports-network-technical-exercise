@@ -32,14 +32,10 @@ const COLORS = {
   slate: '#94a3b8',
 }
 
-// Metric -> colour, driven by the per-metric theme variables so charts and KPI
-// cards stay in sync across every theme.
 const VIEWS_COLOR = 'var(--metric-views)'
 const ENGAGEMENTS_COLOR = 'var(--metric-engagements)'
 const WATCHTIME_COLOR = 'var(--metric-watchtime)'
 
-// The format split is a composition, not a metric, so it gets its own pairing:
-// Shorts = accent, Long-form = muted slate (mirrors the neutral badge styling).
 const PIE_COLORS = [COLORS.accent, COLORS.slate]
 
 const HOVER_CURSOR = { fill: 'var(--accent-bg)' } as const
@@ -55,7 +51,6 @@ const axisProps = {
   tickLine: false,
 } as const
 
-/** Single-line, ellipsised category tick so long titles never wrap or clip. */
 function TitleTick({
   x,
   y,
@@ -110,16 +105,13 @@ function ChartTooltip({
   )
 }
 
-/** Grid of summary charts derived from the filtered videos and daily stats. */
 export function Charts({ rows, daily }: ChartsProps) {
   const { t } = useTranslation()
   const { topVideos, viewsByChannel, watchTimeByChannel, formatSplit } =
     useChartData(rows)
 
-  // Recharts isn't covered by MotionConfig, so gate its animations manually.
   const animate = !prefersReducedMotion()
 
-  // ponytail: read once per mount — phones don't resize; avoids a listener.
   const narrow = typeof window !== 'undefined' && window.innerWidth < 640
 
   if (rows.length === 0) {

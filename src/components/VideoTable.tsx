@@ -14,7 +14,6 @@ import { FormatBadge } from './FormatBadge'
 
 interface VideoTableProps {
   rows: VideoRow[]
-  /** Rank offset for the first row, so numbering stays continuous across pages. */
   startIndex?: number
   sortKey: SortKey
   sortDirection: SortDirection
@@ -54,7 +53,6 @@ export function VideoTable({
     }
   }
 
-  // Emphasise whichever metric column is currently driving the sort.
   const metricCellClass = (key: SortKey, padding: string) =>
     `${padding} py-3 text-right text-sm tabular-nums ${
       sortKey === key
@@ -167,7 +165,6 @@ export function VideoTable({
                 initial={{ opacity: 0 }}
                 animate={{
                   opacity: 1,
-                  // ponytail: stagger capped at 10 rows so large pages don't crawl in
                   transition: { delay: Math.min(index, 10) * 0.03 },
                 }}
                 className="border-b border-[var(--border)] transition-colors last:border-b-0 hover:bg-[var(--social-bg)]"

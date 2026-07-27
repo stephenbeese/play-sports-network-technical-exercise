@@ -2,7 +2,6 @@ interface FormatBadgeProps {
   format: string
 }
 
-/** Small pill showing the video format (e.g. "Shorts", "Long Form"). */
 export function FormatBadge({ format }: FormatBadgeProps) {
   const isShorts = format.toLowerCase().includes('short')
 

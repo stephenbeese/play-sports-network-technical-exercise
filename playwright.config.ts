@@ -3,11 +3,6 @@ import { defineConfig, devices } from '@playwright/test'
 const PORT = 4173
 const baseURL = `http://localhost:${PORT}`
 
-/**
- * E2E config. Tests run against a production build served by `vite preview`,
- * with the fixture injected per-test via network interception (see
- * tests/e2e/fixture.ts), so runs never depend on the real committed data.
- */
 export default defineConfig({
   testDir: 'tests/e2e',
   fullyParallel: true,

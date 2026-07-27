@@ -25,7 +25,6 @@ describe('dashboard', () => {
     })
 
     it('joins the two data files into one sorted row per video', () => {
-      // First page shows the default page size, ordered by views (desc).
       expect(visibleRowCount()).toBe(Math.min(DEFAULT_PAGE_SIZE, videoCount))
       const expectedFirstPage = orderedTitlesBy('views', 'desc').slice(
         0,
@@ -36,7 +35,6 @@ describe('dashboard', () => {
 
     it('shows headline KPI totals derived from every video', () => {
       expect(kpiValue('Total Views')).toBe(formatCompact(totals.views))
-      // Every fixture video has views, so all count as active and matched.
       expect(kpiValue('Active Videos')).toBe(String(videoCount))
       expect(
         screen.getByText(`${videoCount} matched filters`),
@@ -112,20 +110,16 @@ describe('dashboard', () => {
         { name: /Engagements/ },
       )
 
-      // First click: sort by engagements, descending.
       await user.click(engagementsHeader)
       await waitFor(() => {
         expect(visibleRowTitles()[0]).toBe(
           orderedTitlesBy('engagements', 'desc')[0],
         )
       })
-      // The engagement leader differs from the views leader (a short video with
-      // outsized engagement), so this proves the sort actually changed the data.
       expect(orderedTitlesBy('engagements', 'desc')[0]).not.toBe(
         orderedTitlesBy('views', 'desc')[0],
       )
 
-      // Second click: same column toggles to ascending.
       await user.click(engagementsHeader)
       await waitFor(() => {
         expect(visibleRowTitles()[0]).toBe(
@@ -144,11 +138,9 @@ describe('dashboard', () => {
       await user.click(screen.getByRole('button', { name: 'Next' }))
       await waitFor(() => {
         expect(screen.getByText(`11–${videoCount}`)).toBeInTheDocument()
-        // Row exit animations mean outgoing rows linger briefly in the DOM.
         expect(visibleRowCount()).toBe(videoCount - DEFAULT_PAGE_SIZE)
       })
 
-      // Growing the page size snaps back to page 1 and shows everything.
       await user.selectOptions(screen.getByLabelText('Rows per page'), '25')
       await waitFor(() => {
         expect(screen.getByText(`1–${videoCount}`)).toBeInTheDocument()

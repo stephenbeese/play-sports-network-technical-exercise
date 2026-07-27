@@ -30,7 +30,6 @@ describe('useVideoFilters.matchesFilters', () => {
     expect(
       result.current.matchesFilters(item({ title: 'An alpha story', account_name: 'Beta' })),
     ).toBe(true)
-    // Search suggestions include channel names, so account_name must match too.
     expect(
       result.current.matchesFilters(item({ title: 'Nothing', account_name: 'Alpha FC' })),
     ).toBe(true)
@@ -82,7 +81,6 @@ describe('useVideoFilters.matchesFilters', () => {
     expect(result.current.search).toBe('')
     expect(result.current.channel).toBe('all')
     expect(result.current.videoType).toBe('all')
-    // Empty date inputs fall back to the data bounds.
     expect(result.current.effectiveDateFrom).toBe(BOUNDS.min)
     expect(result.current.effectiveDateTo).toBe(BOUNDS.max)
   })
