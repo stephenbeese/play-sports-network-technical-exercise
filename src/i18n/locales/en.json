@@ -10,7 +10,7 @@
   },
   "filters": {
     "searchLabel": "Search videos",
-    "searchPlaceholder": "Search by title or channel…",
+    "searchPlaceholder": "Search by title…",
     "channel": "Channel",
     "allChannels": "All channels",
     "format": "Format",

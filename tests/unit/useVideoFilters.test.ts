@@ -23,7 +23,7 @@ describe('useVideoFilters.matchesFilters', () => {
     expect(result.current.canReset).toBe(false)
   })
 
-  it('matches search against title or channel, case-insensitively', () => {
+  it('matches search against the title only, case-insensitively', () => {
     const { result } = setup()
     act(() => result.current.setSearch('ALPHA'))
 
@@ -32,9 +32,6 @@ describe('useVideoFilters.matchesFilters', () => {
     ).toBe(true)
     expect(
       result.current.matchesFilters(item({ title: 'Nothing', account_name: 'Alpha FC' })),
-    ).toBe(true)
-    expect(
-      result.current.matchesFilters(item({ title: 'Nothing', account_name: 'Beta' })),
     ).toBe(false)
   })
 
@@ -63,6 +60,22 @@ describe('useVideoFilters.matchesFilters', () => {
     expect(result.current.matchesFilters(item({ published_at_date: '2025-03-31' }))).toBe(true)
     expect(result.current.matchesFilters(item({ published_at_date: '2025-02-28' }))).toBe(false)
     expect(result.current.matchesFilters(item({ published_at_date: '2025-04-01' }))).toBe(false)
+  })
+
+  it('ignores search but honours channel/type/date (drives scoped suggestions)', () => {
+    const { result } = setup()
+    act(() => {
+      result.current.setSearch('nonexistent')
+      result.current.setChannel('Alpha FC')
+    })
+
+    expect(
+      result.current.matchesNonSearchFilters(item({ account_name: 'Alpha FC' })),
+    ).toBe(true)
+    expect(
+      result.current.matchesNonSearchFilters(item({ account_name: 'Beta United' })),
+    ).toBe(false)
+    expect(result.current.matchesFilters(item({ account_name: 'Alpha FC' }))).toBe(false)
   })
 
   it('flags canReset and clears every filter on reset', () => {

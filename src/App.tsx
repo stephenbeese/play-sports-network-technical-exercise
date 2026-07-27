@@ -22,10 +22,22 @@ function App() {
   const { t } = useTranslation()
   const { rows, daily, loading, error } = useVideoData()
 
-  const { channels, videoTypes, searchSuggestions, dateBounds } =
-    useFilterOptions(rows)
+  const { channels, videoTypes, dateBounds } = useFilterOptions(rows)
 
   const filters = useVideoFilters(dateBounds)
+
+  const searchSuggestions = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          rows
+            .filter(filters.matchesNonSearchFilters)
+            .map((row) => row.title),
+        ),
+      ),
+    [rows, filters.matchesNonSearchFilters],
+  )
+
   const { sortKey, sortDirection, setSortKey, setSortDirection } = useSort()
   const [tab, setTab] = useState<'table' | 'charts'>('table')
 

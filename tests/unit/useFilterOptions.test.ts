@@ -40,24 +40,15 @@ describe('useFilterOptions', () => {
     expect(videoTypes).toEqual(['Long-form', 'Short'])
   })
 
-  it('builds de-duplicated search suggestions from channels and titles', () => {
-    const { searchSuggestions } = render(rows)
-    expect(new Set(searchSuggestions)).toEqual(
-      new Set(['Alpha', 'Beta', 'B1', 'A1', 'A2']),
-    )
-    expect(searchSuggestions).toHaveLength(new Set(searchSuggestions).size)
-  })
-
   it('derives the min and max publish dates', () => {
     const { dateBounds } = render(rows)
     expect(dateBounds).toEqual({ min: '2025-01-05', max: '2025-08-20' })
   })
 
   it('returns empty options and blank date bounds for no rows', () => {
-    const { channels, videoTypes, searchSuggestions, dateBounds } = render([])
+    const { channels, videoTypes, dateBounds } = render([])
     expect(channels).toEqual([])
     expect(videoTypes).toEqual([])
-    expect(searchSuggestions).toEqual([])
     expect(dateBounds).toEqual({ min: '', max: '' })
   })
 })
