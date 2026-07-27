@@ -1,4 +1,5 @@
-import { formatCompact } from '../../src/lib/format'
+import { formatCompact, formatNumber } from '../../src/lib/format'
+import { t } from '../i18n'
 import {
   countByChannel,
   orderedTitlesBy,
@@ -23,13 +24,13 @@ function rows(page: import('@playwright/test').Page) {
 test('renders the dashboard with KPIs and a populated table', async ({
   page,
 }) => {
-  await expect(page.getByText('Total Views')).toBeVisible()
+  await expect(page.getByText(t('kpi.totalViews'))).toBeVisible()
   await expect(page.getByText(formatCompact(totals.views))).toBeVisible()
   await expect(rows(page)).toHaveCount(firstPageCount)
 })
 
 test('search suggestions filter the table', async ({ page }) => {
-  await page.getByPlaceholder('Search by title…').fill('Beta')
+  await page.getByPlaceholder(t('filters.searchPlaceholder')).fill('Beta')
 
   const suggestion = page
     .getByRole('listbox')
@@ -41,21 +42,25 @@ test('search suggestions filter the table', async ({ page }) => {
 })
 
 test('channel and format dropdowns narrow the results', async ({ page }) => {
-  await page.getByLabel('Channel').selectOption('Alpha FC')
+  await page.getByLabel(t('filters.channel')).selectOption('Alpha FC')
   await expect(rows(page)).toHaveCount(countByChannel('Alpha FC'))
 
-  await page.getByLabel('Format').selectOption('Short')
+  await page.getByLabel(t('filters.format')).selectOption('Short')
   const alphaShorts = posts.filter(
     (post) => post.account_name === 'Alpha FC' && post.video_type === 'Short',
   ).length
   await expect(rows(page)).toHaveCount(alphaShorts)
-  await expect(page.getByText(`${alphaShorts} matched filters`)).toBeVisible()
+  await expect(
+    page.getByText(
+      t('kpi.activeVideosHint', { matched: formatNumber(alphaShorts) }),
+    ),
+  ).toBeVisible()
 })
 
 test('sorting by a column reorders the table', async ({ page }) => {
   await page
     .getByRole('table')
-    .getByRole('button', { name: /Engagements/ })
+    .getByRole('button', { name: new RegExp(t('table.engagements')) })
     .click()
 
   const firstRowLink = rows(page).first().getByRole('link')
@@ -65,23 +70,23 @@ test('sorting by a column reorders the table', async ({ page }) => {
 test('pagination navigates pages and respects page size', async ({ page }) => {
   await expect(page.getByText('1–10')).toBeVisible()
 
-  await page.getByRole('button', { name: 'Next' }).click()
+  await page.getByRole('button', { name: t('pagination.next') }).click()
   await expect(page.getByText(`11–${videoCount}`)).toBeVisible()
   await expect(rows(page)).toHaveCount(videoCount - DEFAULT_PAGE_SIZE)
 
-  await page.getByLabel('Rows per page').selectOption('25')
+  await page.getByLabel(t('pagination.rowsPerPage')).selectOption('25')
   await expect(rows(page)).toHaveCount(videoCount)
 })
 
 test('charts tab renders the chart sections', async ({ page }) => {
-  await page.getByRole('tab', { name: 'Charts' }).click()
+  await page.getByRole('tab', { name: t('tabs.charts') }).click()
 
   for (const heading of [
-    'Views over time',
-    'Top 10 videos by views',
-    'Views by channel',
-    'Video count by format',
-    'Estimated watch time by channel',
+    t('charts.viewsOverTime'),
+    t('charts.top10'),
+    t('charts.viewsByChannel'),
+    t('charts.videoCountByFormat'),
+    t('charts.watchTimeByChannel'),
   ]) {
     await expect(page.getByRole('heading', { name: heading })).toBeVisible()
   }
@@ -89,11 +94,11 @@ test('charts tab renders the chart sections', async ({ page }) => {
 })
 
 test('reset restores the full result set', async ({ page }) => {
-  const channel = page.getByLabel('Channel')
+  const channel = page.getByLabel(t('filters.channel'))
   await channel.selectOption('Alpha FC')
   await expect(rows(page)).toHaveCount(countByChannel('Alpha FC'))
 
-  await page.getByRole('button', { name: 'Reset' }).click()
+  await page.getByRole('button', { name: t('filters.reset') }).click()
 
   await expect(channel).toHaveValue('all')
   await expect(rows(page)).toHaveCount(firstPageCount)
