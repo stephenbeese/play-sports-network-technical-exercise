@@ -1,5 +1,11 @@
 import { useCallback, useEffect, useState } from 'react'
-import { DEFAULT_THEME, isValidTheme, THEME_IDS, type Theme } from './themes'
+import {
+  DEFAULT_THEME,
+  isDarkTheme,
+  isValidTheme,
+  THEME_IDS,
+  type Theme,
+} from './themes'
 
 const STORAGE_KEY = 'theme'
 
@@ -21,6 +27,7 @@ export function useTheme() {
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
+    document.documentElement.toggleAttribute('data-dark', isDarkTheme(theme))
     try {
       localStorage.setItem(STORAGE_KEY, theme)
     } catch {

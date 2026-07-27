@@ -69,7 +69,7 @@ export function ChatPanel({ rows, daily, filtersActive }: ChatPanelProps) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 12 }}
             transition={{ duration: 0.2, ease: 'easeOut' }}
-            className="fixed bottom-21 right-5 z-40 flex h-[28rem] w-[min(24rem,calc(100vw-2.5rem))] flex-col overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--bg)] shadow-2xl"
+            className="fixed bottom-21 right-5 z-40 flex h-[min(28rem,calc(100dvh-7rem))] w-[min(24rem,calc(100vw-2.5rem))] flex-col overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--bg)] shadow-2xl"
           >
             <div className="flex items-center justify-between border-b border-[var(--border)] px-4 py-3">
               <div className="min-w-0">

@@ -119,6 +119,9 @@ export function Charts({ rows, daily }: ChartsProps) {
   // Recharts isn't covered by MotionConfig, so gate its animations manually.
   const animate = !prefersReducedMotion()
 
+  // ponytail: read once per mount — phones don't resize; avoids a listener.
+  const narrow = typeof window !== 'undefined' && window.innerWidth < 640
+
   if (rows.length === 0) {
     return (
       <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg)] p-10 text-center text-sm text-[var(--text)]">
@@ -202,7 +205,7 @@ export function Charts({ rows, daily }: ChartsProps) {
             <YAxis
               type="category"
               dataKey="title"
-              width={190}
+              width={narrow ? 110 : 190}
               interval={0}
               tick={<TitleTick />}
               {...axisProps}
@@ -237,7 +240,7 @@ export function Charts({ rows, daily }: ChartsProps) {
             <YAxis
               type="category"
               dataKey="account_name"
-              width={130}
+              width={narrow ? 95 : 130}
               interval={0}
               tickFormatter={formatChannel}
               {...axisProps}
