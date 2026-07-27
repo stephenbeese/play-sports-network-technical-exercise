@@ -78,7 +78,7 @@ export function KpiCards({ rows }: KpiCardsProps) {
           <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text)]">
             {kpi.label}
           </p>
-          <p className="mt-2 text-3xl font-bold tabular-nums text-[var(--text-h)]">
+          <p className="mt-2 whitespace-nowrap text-2xl font-bold tabular-nums text-[var(--text-h)] sm:text-3xl">
             {kpi.value}
           </p>
           <p className="mt-1 text-xs text-[var(--text)]">{kpi.hint}</p>

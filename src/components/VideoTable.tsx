@@ -90,8 +90,8 @@ export function VideoTable({
           </h2>
         </div>
 
-        <div className="flex flex-wrap items-center gap-4">
-          <label className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-4 max-sm:w-full">
+          <label className="flex items-center gap-2 max-sm:w-full">
             <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text)]">
               {t('table.rankBy')}
             </span>
@@ -100,7 +100,7 @@ export function VideoTable({
               onChange={(event) =>
                 onSortKeyChange(event.target.value as SortKey)
               }
-              className="rounded-lg border border-[var(--border)] bg-[var(--bg)] px-2.5 py-1.5 text-sm text-[var(--text-h)] transition-colors hover:bg-[var(--social-bg)]"
+              className="rounded-lg border border-[var(--border)] bg-[var(--bg)] px-2.5 py-1.5 text-sm text-[var(--text-h)] transition-colors hover:bg-[var(--social-bg)] max-sm:flex-1"
             >
               {RANK_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -110,7 +110,7 @@ export function VideoTable({
             </select>
           </label>
 
-          <label className="flex items-center gap-2">
+          <label className="flex items-center gap-2 max-sm:w-full">
             <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text)]">
               {t('table.order')}
             </span>
@@ -119,7 +119,7 @@ export function VideoTable({
               onChange={(event) =>
                 onSortDirectionChange(event.target.value as SortDirection)
               }
-              className="rounded-lg border border-[var(--border)] bg-[var(--bg)] px-2.5 py-1.5 text-sm text-[var(--text-h)] transition-colors hover:bg-[var(--social-bg)]"
+              className="rounded-lg border border-[var(--border)] bg-[var(--bg)] px-2.5 py-1.5 text-sm text-[var(--text-h)] transition-colors hover:bg-[var(--social-bg)] max-sm:flex-1"
             >
               <option value="desc">{t('table.highestFirst')}</option>
               <option value="asc">{t('table.lowestFirst')}</option>
