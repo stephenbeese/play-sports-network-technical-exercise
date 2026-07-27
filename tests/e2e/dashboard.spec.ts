@@ -29,7 +29,7 @@ test('renders the dashboard with KPIs and a populated table', async ({
 })
 
 test('search suggestions filter the table', async ({ page }) => {
-  await page.getByPlaceholder('Search by title or channel…').fill('Beta')
+  await page.getByPlaceholder('Search by title…').fill('Beta')
 
   const suggestion = page
     .getByRole('listbox')

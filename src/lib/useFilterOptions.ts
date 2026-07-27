@@ -9,7 +9,6 @@ export interface DateBounds {
 export interface FilterOptions {
   channels: string[]
   videoTypes: string[]
-  searchSuggestions: string[]
   dateBounds: DateBounds
 }
 
@@ -24,17 +23,6 @@ export function useFilterOptions(rows: VideoRow[]): FilterOptions {
     [rows],
   )
 
-  const searchSuggestions = useMemo(
-    () =>
-      Array.from(
-        new Set([
-          ...rows.map((row) => row.account_name),
-          ...rows.map((row) => row.title),
-        ]),
-      ),
-    [rows],
-  )
-
   const dateBounds = useMemo<DateBounds>(() => {
     if (rows.length === 0) return { min: '', max: '' }
     let min = rows[0].published_at_date
@@ -46,5 +34,5 @@ export function useFilterOptions(rows: VideoRow[]): FilterOptions {
     return { min, max }
   }, [rows])
 
-  return { channels, videoTypes, searchSuggestions, dateBounds }
+  return { channels, videoTypes, dateBounds }
 }

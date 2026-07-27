@@ -46,7 +46,7 @@ describe('dashboard', () => {
     it('narrows the table and KPI count by free-text search', async () => {
       const { user } = await renderDashboard()
 
-      const search = screen.getByPlaceholderText('Search by title or channel…')
+      const search = screen.getByPlaceholderText('Search by title…')
       await user.type(search, 'Beta')
 
       await waitFor(() => {
@@ -195,7 +195,7 @@ describe('dashboard', () => {
       const { user } = await renderDashboard()
 
       await user.type(
-        screen.getByPlaceholderText('Search by title or channel…'),
+        screen.getByPlaceholderText('Search by title…'),
         'no-such-video',
       )
       await user.click(screen.getByRole('tab', { name: 'Charts' }))

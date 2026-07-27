@@ -17,6 +17,7 @@ export interface VideoFilters {
   effectiveDateTo: string
   canReset: boolean
   matchesFilters: (item: Filterable) => boolean
+  matchesNonSearchFilters: (item: Filterable) => boolean
   setSearch: (value: string) => void
   setChannel: (value: string) => void
   setVideoType: (value: string) => void
@@ -37,17 +38,22 @@ export function useVideoFilters(dateBounds: DateBounds): VideoFilters {
 
   const searchQuery = search.trim().toLowerCase()
 
-  const matchesFilters = useCallback(
+  const matchesNonSearchFilters = useCallback(
     (item: Filterable) =>
-      (searchQuery === '' ||
-        item.title.toLowerCase().includes(searchQuery) ||
-        item.account_name.toLowerCase().includes(searchQuery)) &&
       (channel === ALL || item.account_name === channel) &&
       (videoType === ALL || item.video_type === videoType) &&
       (effectiveDateFrom === '' ||
         item.published_at_date >= effectiveDateFrom) &&
       (effectiveDateTo === '' || item.published_at_date <= effectiveDateTo),
-    [searchQuery, channel, videoType, effectiveDateFrom, effectiveDateTo],
+    [channel, videoType, effectiveDateFrom, effectiveDateTo],
+  )
+
+  const matchesFilters = useCallback(
+    (item: Filterable) =>
+      (searchQuery === '' ||
+        item.title.toLowerCase().includes(searchQuery)) &&
+      matchesNonSearchFilters(item),
+    [searchQuery, matchesNonSearchFilters],
   )
 
   const canReset =
@@ -74,6 +80,7 @@ export function useVideoFilters(dateBounds: DateBounds): VideoFilters {
       effectiveDateTo,
       canReset,
       matchesFilters,
+      matchesNonSearchFilters,
       setSearch,
       setChannel,
       setVideoType,
@@ -89,6 +96,7 @@ export function useVideoFilters(dateBounds: DateBounds): VideoFilters {
       effectiveDateTo,
       canReset,
       matchesFilters,
+      matchesNonSearchFilters,
       reset,
     ],
   )
