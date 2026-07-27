@@ -1,3 +1,5 @@
+import { motion } from 'motion/react'
+
 interface PaginationProps {
   page: number
   pageCount: number
@@ -56,27 +58,29 @@ export function Pagination({
 
       {pageCount > 1 && (
         <div className="flex items-center gap-2">
-          <button
+          <motion.button
             type="button"
+            whileTap={{ scale: 0.97 }}
             className={buttonClass}
             onClick={() => onPageChange(page - 1)}
             disabled={page <= 1}
           >
             Previous
-          </button>
+          </motion.button>
           <span className="px-2 text-sm text-[var(--text)]">
             Page{' '}
             <span className="font-semibold text-[var(--text-h)]">{page}</span> of{' '}
             {pageCount}
           </span>
-          <button
+          <motion.button
             type="button"
+            whileTap={{ scale: 0.97 }}
             className={buttonClass}
             onClick={() => onPageChange(page + 1)}
             disabled={page >= pageCount}
           >
             Next
-          </button>
+          </motion.button>
         </div>
       )}
     </div>

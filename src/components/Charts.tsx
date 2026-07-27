@@ -18,6 +18,7 @@ import {
 } from 'recharts'
 import { formatCompact, formatDate, formatNumber, formatWatchTime } from '../lib/format'
 import { useChartData } from '../lib/useChartData'
+import { prefersReducedMotion } from '../lib/motion'
 import type { VideoRow } from '../types'
 
 interface ChartsProps {
@@ -113,6 +114,9 @@ export function Charts({ rows, daily }: ChartsProps) {
   const { topVideos, viewsByChannel, watchTimeByChannel, formatSplit } =
     useChartData(rows)
 
+  // Recharts isn't covered by MotionConfig, so gate its animations manually.
+  const animate = !prefersReducedMotion()
+
   if (rows.length === 0) {
     return (
       <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg)] p-10 text-center text-sm text-[var(--text)]">
@@ -142,6 +146,7 @@ export function Charts({ rows, daily }: ChartsProps) {
               }
             />
             <Area
+              isAnimationActive={animate}
               type="monotone"
               dataKey="views"
               name="Views"
@@ -166,6 +171,7 @@ export function Charts({ rows, daily }: ChartsProps) {
               }
             />
             <Line
+              isAnimationActive={animate}
               type="monotone"
               dataKey="engagements"
               name="Engagements"
@@ -203,7 +209,7 @@ export function Charts({ rows, daily }: ChartsProps) {
               cursor={HOVER_CURSOR}
               content={<ChartTooltip valueFormatter={formatNumber} />}
             />
-            <Bar dataKey="views" name="Views" fill={VIEWS_COLOR} radius={[0, 4, 4, 0]}>
+            <Bar isAnimationActive={animate} dataKey="views" name="Views" fill={VIEWS_COLOR} radius={[0, 4, 4, 0]}>
               <LabelList
                 dataKey="views"
                 position="right"
@@ -237,7 +243,7 @@ export function Charts({ rows, daily }: ChartsProps) {
               cursor={HOVER_CURSOR}
               content={<ChartTooltip valueFormatter={formatNumber} />}
             />
-            <Bar dataKey="views" name="Views" fill={VIEWS_COLOR} radius={[0, 4, 4, 0]}>
+            <Bar isAnimationActive={animate} dataKey="views" name="Views" fill={VIEWS_COLOR} radius={[0, 4, 4, 0]}>
               <LabelList
                 dataKey="views"
                 position="right"
@@ -255,6 +261,7 @@ export function Charts({ rows, daily }: ChartsProps) {
         <ResponsiveContainer width="100%" height={360}>
           <PieChart>
             <Pie
+              isAnimationActive={animate}
               data={formatSplit}
               dataKey="value"
               nameKey="name"
@@ -299,6 +306,7 @@ export function Charts({ rows, daily }: ChartsProps) {
               content={<ChartTooltip valueFormatter={formatWatchTime} />}
             />
             <Bar
+              isAnimationActive={animate}
               dataKey="watchtime"
               name="Estimated watch time"
               fill={WATCHTIME_COLOR}

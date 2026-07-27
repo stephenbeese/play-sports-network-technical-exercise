@@ -1,3 +1,4 @@
+import { motion } from 'motion/react'
 import type { VideoRow } from '../types'
 import {
   formatDate,
@@ -156,8 +157,13 @@ export function VideoTable({
                     >
                       {column.label}
                       {active && (
-                        <span aria-hidden="true">
-                          {sortDirection === 'desc' ? '↓' : '↑'}
+                        <span
+                          aria-hidden="true"
+                          className={`inline-block transition-transform duration-200 ${
+                            sortDirection === 'asc' ? 'rotate-180' : ''
+                          }`}
+                        >
+                          ↓
                         </span>
                       )}
                     </button>
@@ -168,8 +174,15 @@ export function VideoTable({
           </thead>
           <tbody>
             {rows.map((row, index) => (
-              <tr
+              <motion.tr
                 key={row.video_id}
+                layout
+                initial={{ opacity: 0 }}
+                animate={{
+                  opacity: 1,
+                  // ponytail: stagger capped at 10 rows so large pages don't crawl in
+                  transition: { delay: Math.min(index, 10) * 0.03 },
+                }}
                 className="border-b border-[var(--border)] transition-colors last:border-b-0 hover:bg-[var(--social-bg)]"
               >
                 <td className="px-6 py-3">
@@ -223,7 +236,7 @@ export function VideoTable({
                 <td className={metricCellClass('avgPctWatched', 'px-6')}>
                   {formatPercent(avgPercentWatched(row))}
                 </td>
-              </tr>
+              </motion.tr>
             ))}
           </tbody>
         </table>

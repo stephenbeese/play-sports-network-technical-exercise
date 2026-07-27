@@ -1,3 +1,4 @@
+import { motion } from 'motion/react'
 import { ALL } from '../lib/constants'
 import { SearchInput } from './SearchInput'
 
@@ -118,14 +119,15 @@ export function Filters({
         />
       </label>
 
-      <button
+      <motion.button
         type="button"
+        whileTap={{ scale: 0.97 }}
         onClick={onReset}
         disabled={!canReset}
         className="rounded-lg bg-[var(--accent)] px-5 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
       >
         Reset
-      </button>
+      </motion.button>
     </div>
   )
 }

@@ -134,6 +134,31 @@ body {
   margin: 0;
 }
 
+/* Always show the scrollbar track so content-height changes (filtering,
+   pagination, tab switches) never shift the centred layout sideways. */
+html {
+  overflow-y: scroll;
+}
+
+/* Cross-fade surface colours when the theme changes instead of snapping. */
+body,
+#root,
+[class*='bg-[var(--bg)]'] {
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    color 0.3s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 h1,
 h2 {
   font-family: var(--heading);
