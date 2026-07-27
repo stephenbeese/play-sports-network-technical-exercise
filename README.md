@@ -39,6 +39,10 @@ built with [Recharts](https://recharts.org/).
 video-type dropdowns, and a publish-date range. All filters compose and drive
 both the table and the charts, with a one-click reset.
 - **Polish** — responsive layout, light/dark support, loading and error states.
+- **Chat assistant** — a floating chatbot that answers questions about the data
+("top video by views", "which channel has the most watch time?"). It works with
+zero setup in demo mode, and upgrades to free-form answers via OpenAI when a
+key is supplied — see [Chat assistant](#chat-assistant).
 
 **Tech stack:** React 19, TypeScript, Vite, Tailwind CSS v4, Recharts on the
 frontend; Python, pandas/Jupyter and DuckDB for the data layer.
@@ -133,6 +137,48 @@ yarn lint      # run ESLint
 
 > Uses Yarn (a `yarn.lock` is committed), but `npm install` / `npm run dev` work
 > equally well if you prefer npm.
+
+### Chat assistant
+
+The chat bubble in the bottom-right corner works in two modes:
+
+- **Demo mode (default, no setup):** common questions ("top video by views",
+"which channel has the most watch time?", "how many Shorts vs long-form?",
+"total engagements") are answered locally by computing over the same joined
+data that drives the dashboard. No network calls, no key, no cost.
+- **OpenAI mode (optional):** for free-form questions, either paste an OpenAI
+API key into the panel (stored only in your browser's `localStorage`), or copy
+`.env.example` to `.env.local` and set `VITE_OPENAI_API_KEY`, then restart the
+dev server. Answers stream from `gpt-4o-mini` with the currently *filtered*
+video data provided as context, and the model is instructed to answer only
+from that data.
+
+#### How the chatbot works
+
+The design goal is **accuracy over cleverness** — every number the bot quotes
+must match what's on screen:
+
+- **All aggregation happens in code, never in the model.** LLMs are unreliable
+at arithmetic over long lists - early versions that received the ~2,300 raw
+rows produced plausible-but-wrong totals. Instead the app precomputes an exact
+fact sheet (overall totals, per-channel/per-format/per-month rollups, top-15
+lists) using the same joined data that drives the KPI cards and charts, and
+the model's only job is to pick the right precomputed number and narrate it.
+It's explicitly instructed never to do its own arithmetic and to say when a
+question falls outside the fact sheet rather than guess.
+- **Demo mode is the same idea without the model:** a small intent matcher
+(`src/lib/localAnswers.ts`) routes common questions straight to those code
+computed aggregates, so the chatbot is fully usable with no key at all.
+- **Filter awareness:** the bot answers over the currently *filtered* data
+(like everything else on the page), and prefixes answers with "Across your
+current filters…" when any filter is active so a filtered total is never
+mistaken for a global one.
+
+**Security note:** the app is fully static, so any key used client-side is
+visible to that browser. That's fine for local review with your own key, but a
+real key must never be baked into a public build - to productionise this I'd
+move the OpenAI call behind a small serverless function (e.g. Vercel) holding
+the key server-side, with a spend cap and rate limiting.
 
 ### Tests
 
