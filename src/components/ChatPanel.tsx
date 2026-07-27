@@ -94,7 +94,7 @@ export function ChatPanel({ rows, daily, filtersActive }: ChatPanelProps) {
                 }}
                 className="whitespace-nowrap rounded-lg border border-[var(--border)] px-2 py-1 text-xs text-[var(--text)] transition-colors hover:bg-[var(--social-bg)]"
               >
-                {demoMode ? 'Add key' : 'Key ✓'}
+                {apiKey ? 'Key ✓' : 'Add key'}
               </button>
               </div>
             </div>

@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import type { VideoRow } from '../types'
 import { formatWatchTime } from './format'
 import { answerLocally, DEMO_FALLBACK } from './localAnswers'
@@ -112,29 +112,35 @@ async function streamOpenAI(
   history: ChatMessage[],
   onToken: (text: string) => void,
 ): Promise<void> {
-  const res = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiKey}`,
+  const messages = [
+    {
+      role: 'system',
+      content:
+        SYSTEM_PROMPT +
+        (filtersActive
+          ? 'IMPORTANT: dashboard filters are active, so the fact sheet covers a filtered subset — start every answer with "Across your current filters,".\n\n'
+          : '') +
+        buildContext(rows, daily),
     },
-    body: JSON.stringify({
-      model: 'gpt-4o-mini',
-      stream: true,
-      messages: [
-        {
-          role: 'system',
-          content:
-            SYSTEM_PROMPT +
-            (filtersActive
-              ? 'IMPORTANT: dashboard filters are active, so the fact sheet covers a filtered subset — start every answer with "Across your current filters,".\n\n'
-              : '') +
-            buildContext(rows, daily),
+    ...history,
+  ]
+
+  // A pasted key calls OpenAI directly; otherwise the Vercel proxy
+  // (/api/chat) holds the key server-side and relays the same SSE stream.
+  const res = apiKey
+    ? await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${apiKey}`,
         },
-        ...history,
-      ],
-    }),
-  })
+        body: JSON.stringify({ model: 'gpt-4o-mini', stream: true, messages }),
+      })
+    : await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages }),
+      })
 
   if (res.status === 401) throw new Error('OpenAI rejected the API key — check it and try again.')
   if (res.status === 429) throw new Error('OpenAI rate limit hit — wait a moment and retry.')
@@ -182,6 +188,16 @@ export function useChat(rows: VideoRow[], daily: DailyPoint[], filtersActive = f
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [sending, setSending] = useState(false)
   const [apiKey, setApiKeyState] = useState(storedKey)
+  const [proxyAvailable, setProxyAvailable] = useState(false)
+
+  // Detect the Vercel proxy (api/chat.ts). Present on the deployed site;
+  // absent under `yarn dev`/`yarn preview`, where demo mode or a pasted key
+  // takes over.
+  useEffect(() => {
+    fetch('/api/chat')
+      .then((res) => res.ok && res.headers.get('content-type')?.includes('json') && setProxyAvailable(true))
+      .catch(() => {})
+  }, [])
 
   const setApiKey = useCallback((key: string) => {
     const trimmed = key.trim()
@@ -197,7 +213,7 @@ export function useChat(rows: VideoRow[], daily: DailyPoint[], filtersActive = f
       const history: ChatMessage[] = [...messages, { role: 'user', content: trimmed }]
       setSending(true)
 
-      if (!apiKey) {
+      if (!apiKey && !proxyAvailable) {
         const local = answerLocally(trimmed, rows, daily)
         // Flag filtered numbers so they aren't mistaken for global totals.
         const answer =
@@ -221,10 +237,10 @@ export function useChat(rows: VideoRow[], daily: DailyPoint[], filtersActive = f
         setSending(false)
       }
     },
-    [apiKey, daily, filtersActive, messages, rows, sending],
+    [apiKey, daily, filtersActive, messages, proxyAvailable, rows, sending],
   )
 
   const clear = useCallback(() => setMessages([]), [])
 
-  return { messages, sending, demoMode: !apiKey, apiKey, setApiKey, send, clear }
+  return { messages, sending, demoMode: !apiKey && !proxyAvailable, apiKey, setApiKey, send, clear }
 }

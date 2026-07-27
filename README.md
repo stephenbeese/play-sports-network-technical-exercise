@@ -183,18 +183,23 @@ yarn lint      # run ESLint
 
 ### Chat assistant
 
-The chat bubble in the bottom-right corner works in two modes:
+The chat bubble in the bottom-right corner works in three modes, picking the
+best one available:
 
-- **Demo mode (default, no setup):** common questions ("top video by views",
-"which channel has the most watch time?", "how many Shorts vs long-form?",
-"total engagements") are answered locally by computing over the same joined
-data that drives the dashboard. No network calls, no key, no cost.
-- **OpenAI mode (optional):** for free-form questions, either paste an OpenAI
-API key into the panel (stored only in your browser's `localStorage`), or copy
-`.env.example` to `.env.local` and set `VITE_OPENAI_API_KEY`, then restart the
-dev server. Answers stream from `gpt-4o-mini` with the currently *filtered*
-video data provided as context, and the model is instructed to answer only
-from that data.
+- **Hosted OpenAI mode (the deployed site):** on the Vercel deployment, chat
+requests go through a serverless function (`api/chat.ts`) that holds the
+OpenAI key server-side — so free-form questions work for every visitor with
+no setup and no key ever reaching the browser. Answers stream from
+`gpt-4o-mini` with the currently *filtered* video data provided as context,
+and the model is instructed to answer only from that data.
+- **Demo mode (running locally, no setup):** common questions ("top video by
+views", "which channel has the most watch time?", "how many Shorts vs
+long-form?", "total engagements") are answered locally by computing over the
+same joined data that drives the dashboard. No network calls, no key, no cost.
+- **Bring-your-own-key (running locally, optional):** for free-form questions
+without the deployed proxy, either paste an OpenAI API key into the panel
+(stored only in your browser's `localStorage`), or copy `.env.example` to
+`.env.local` and set `VITE_OPENAI_API_KEY`, then restart the dev server.
 
 #### How the chatbot works
 
@@ -217,11 +222,24 @@ computed aggregates, so the chatbot is fully usable with no key at all.
 current filters…" when any filter is active so a filtered total is never
 mistaken for a global one.
 
-**Security note:** the app is fully static, so any key used client-side is
-visible to that browser. That's fine for local review with your own key, but a
-real key must never be baked into a public build - to productionise this I'd
-move the OpenAI call behind a small serverless function (e.g. Vercel) holding
-the key server-side, with a spend cap and rate limiting.
+**Security note:** a key must never be baked into a public build — any
+`VITE_` variable is readable in the shipped JavaScript. That's why the
+deployed site uses the serverless proxy: the key lives in a Vercel
+environment variable, requests are validated and rate-limited per IP in
+`api/chat.ts`, and the OpenAI account carries a spend cap. The pasted-key
+path is for local review only.
+
+### Deployment (Vercel)
+
+The site deploys to [Vercel](https://vercel.com/) as a Vite static build plus
+the `api/chat.ts` edge function:
+
+1. Import the GitHub repo in the Vercel dashboard — the Vite preset needs no
+configuration (build `yarn build`, output `dist/`).
+2. Add an `OPENAI_API_KEY` environment variable (Project → Settings →
+Environment Variables). This powers the chat proxy and is never exposed to
+the client.
+3. Every push to `main` redeploys automatically.
 
 ### Tests
 
