@@ -1,4 +1,4 @@
-import type { SortDirection, SortKey } from '../components/VideoTable'
+import type { SortDirection, SortKey } from './sort'
 
 /** Sentinel value for "no filter applied" in the channel/format dropdowns. */
 export const ALL = 'all'
