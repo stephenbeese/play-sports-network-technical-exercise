@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { SortDirection, SortKey } from '../components/VideoTable'
+import type { SortDirection, SortKey } from './sort'
 import { DEFAULT_SORT_DIRECTION, DEFAULT_SORT_KEY } from './constants'
 
 export interface Sort {

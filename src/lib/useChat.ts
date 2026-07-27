@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import type { VideoRow } from '../types'
+import { SYSTEM_PROMPT, TOP_N } from './chatPrompt'
 import { formatWatchTime } from './format'
 import { answerLocally, DEMO_FALLBACK } from './localAnswers'
 import type { DailyPoint } from './useFilteredVideos'
@@ -19,8 +20,6 @@ function storedKey(): string {
     ''
   )
 }
-
-const TOP_N = 15
 
 /**
  * Precomputed fact sheet the model answers from. Aggregating in code (exact)
@@ -96,14 +95,6 @@ function buildContext(rows: VideoRow[], daily: DailyPoint[]): string {
   ].join('\n')
 }
 
-const SYSTEM_PROMPT = `You are an analyst for a sports video performance dashboard.
-Answer ONLY from the precomputed fact sheet below. The totals and rankings are computed exactly by the dashboard — quote them as-is and NEVER attempt your own arithmetic beyond simple ratios of the given numbers. If a question needs data not in the fact sheet (e.g. a video outside the top ${TOP_N}), say the dashboard's table or filters can answer it — never guess or invent numbers.
-Watch time values are already formatted in hours (e.g. "114.6k hrs") — quote them exactly as written, never convert units. Format dates like "13 Dec 2025" and numbers with thousands separators.
-Keep answers short and concrete.
-
-FACT SHEET:
-`
-
 async function streamOpenAI(
   apiKey: string,
   rows: VideoRow[],
@@ -112,21 +103,14 @@ async function streamOpenAI(
   history: ChatMessage[],
   onToken: (text: string) => void,
 ): Promise<void> {
-  const messages = [
-    {
-      role: 'system',
-      content:
-        SYSTEM_PROMPT +
-        (filtersActive
-          ? 'IMPORTANT: dashboard filters are active, so the fact sheet covers a filtered subset — start every answer with "Across your current filters,".\n\n'
-          : '') +
-        buildContext(rows, daily),
-    },
-    ...history,
-  ]
+  const context =
+    (filtersActive
+      ? 'IMPORTANT: dashboard filters are active, so the fact sheet covers a filtered subset — start every answer with "Across your current filters,".\n\n'
+      : '') + buildContext(rows, daily)
 
   // A pasted key calls OpenAI directly; otherwise the Vercel proxy
-  // (/api/chat) holds the key server-side and relays the same SSE stream.
+  // (/api/chat) holds the key server-side, injects the system prompt itself
+  // (so callers can't replace it), and relays the same SSE stream.
   const res = apiKey
     ? await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
@@ -134,12 +118,16 @@ async function streamOpenAI(
           'Content-Type': 'application/json',
           Authorization: `Bearer ${apiKey}`,
         },
-        body: JSON.stringify({ model: 'gpt-4o-mini', stream: true, messages }),
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          stream: true,
+          messages: [{ role: 'system', content: SYSTEM_PROMPT + context }, ...history],
+        }),
       })
     : await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages }),
+        body: JSON.stringify({ context, messages: history }),
       })
 
   if (res.status === 401) throw new Error('OpenAI rejected the API key — check it and try again.')

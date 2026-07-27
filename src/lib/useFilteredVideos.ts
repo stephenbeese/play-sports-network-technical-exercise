@@ -1,9 +1,5 @@
 import { useMemo } from 'react'
-import {
-  avgPercentWatched,
-  type SortDirection,
-  type SortKey,
-} from '../components/VideoTable'
+import { avgPercentWatched, type SortDirection, type SortKey } from './sort'
 import type { DailyStatRow, VideoRow } from '../types'
 import type { Filterable } from './useVideoFilters'
 
