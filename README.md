@@ -4,7 +4,9 @@ An end-to-end project that takes raw video performance data, cleans with Python,
 
 **At a glance:** React 19 · TypeScript · Vite · Tailwind CSS v4 · Recharts · DuckDB · pandas
 
-![Dashboard screenshot](/images/screenshot.png)
+**Live demo:** [play-sports-network-technical-exerc.vercel.app](https://play-sports-network-technical-exerc.vercel.app/)
+
+![Dashboard screenshot](/images/responsive.png)
 
 ## Table of contents
 
@@ -22,11 +24,12 @@ An end-to-end project that takes raw video performance data, cleans with Python,
       - [2. Run the SQL queries](#2-run-the-sql-queries)
       - [3. Build the frontend data files](#3-build-the-frontend-data-files)
     - [Frontend dashboard](#frontend-dashboard)
+    - [Chat assistant](#chat-assistant)
+      - [How the chatbot works](#how-the-chatbot-works)
+    - [Deployment (Vercel)](#deployment-vercel)
     - [Tests](#tests)
   - [Things I'd improve with more time](#things-id-improve-with-more-time)
   - [AI \& Tooling reflection](#ai--tooling-reflection)
-
-
 
 ## What I built
 
@@ -34,13 +37,11 @@ The exercise is split into two main parts:
 
 ### 1. Data pipeline & SQL analysis
 
-- **ETL** (`jupyter_notebook/etl.ipynb`) - loads the raw CSVs from `data/raw`, cleans and type-casts them (dates, numerics, text), and writes tidy outputs to `data/processed`. I used the `Python` library `Pandas` to perform this Extract, Transform, Load pipeline. This was mainly to ensure the data was clean and the data types were consistent so I could easily perform calculations and analyse the data in the frontend.
+- **ETL** (`jupyter_notebook/etl.ipynb`) - a Python/pandas Extract, Transform, Load pipeline that loads the raw CSVs from `data/raw`, cleans and type-casts them (dates, numerics, text), and writes tidy outputs to `data/processed`, so the frontend gets clean, consistently typed data to calculate over.
 - **SQL queries** ([sql/queries.sql](sql/queries.sql), run via `sql/run_queries.py`) - analytical queries executed against the processed CSVs with [DuckDB](https://duckdb.org/). They answer the three questions from the brief: total views per video, views by video type over time, and the top 5 videos by views in the past 28 days.
 - **Frontend data build** (`sql/build_frontend_data.py`) - reshapes the processed tables into two JSON files so I could easily work with them via the React app.
 
 > Note: the brief's `estimated_minutes_watched` field is carried through the pipeline as `watchtime` (in minutes).
-
-
 
 ### 2. Interactive dashboard
 
@@ -49,41 +50,35 @@ A fully responsive single-page React app (`src/`) that loads the two JSON files,
 The main features include:
 
 - **KPI cards** - four headline metrics (total views, estimated watch time, engagements, and active videos) with a colour accent per card. Values recalculate live from the currently filtered set, and the "active videos" card also shows how many videos matched the filters.
-- **Video table** - a ranked "editorial leaderboard" of every video with lifetime totals. Each row shows a lazy-loaded thumbnail with a duration overlay, a title that links out to the original video, the channel, a colour-coded format badge, views / engagements / estimated watch time, and an average % watched (watch time over the maximum possible for the views). Every metric column - including average % watched - is sortable by clicking its header (toggles ascending/descending) or via the dedicated **Rank by** and **Order** dropdowns, with continuous rank numbering across pages.
-- **Pagination** - choose the number of rows per page, step through with Previous/Next, and see a "showing X–Y of Z videos" summary. Only the current page is rendered, so a large catalogue stays fast.
-- **Charts tab** - six responsive [Recharts](https://recharts.org/) visualisations that all respond to the active filters. Views over time (area), engagements over time (line), top 10 videos by views (horizontal bar), views by channel (horizontal bar), estimated watch time by channel (bar), and a video-count-by-format (donut). Custom themed tooltips, compact axis formatting, and an empty state when filters match nothing.
-- **Filters** - free-text search across title and channel with a keyboard-accessible autocomplete dropdown (arrow keys, Enter, Escape), channel and format dropdowns, and a published-date range whose bounds are derived from the data. All filters compose and drive both the table and the charts, with a one-click reset that's disabled when nothing is applied.
-- **Theming** - five built-in palettes (Light, Dark, Ocean, Forest, Sunset) via a header theme switcher. The choice is persisted to `localStorage` and the initial theme respects the OS `prefers-color-scheme` setting.
-- **Animations** - subtle motion (via [Motion](https://motion.dev/)) that guides attention without getting in the way: KPI cards fade and drift up with a staggered entrance, tab switches cross-fade, table rows and the search autocomplete animate in and out, buttons respond to hover/press, and the charts draw in on load. Theme changes ease smoothly between colours, and every animation is disabled automatically for users with the OS `prefers-reduced-motion` setting.
+- **Video table** - a ranked "editorial leaderboard" of every video with lifetime totals. Each row shows a lazy-loaded thumbnail (with duration overlay), a title linking to the original video, channel, a colour-coded format badge, views / engagements / estimated watch time, and average % watched. Every metric column is sortable via its header or the **Rank by** and **Order** dropdowns, with continuous rank numbering across pages.
+- **Pagination** - choose the rows per page, step through with Previous/Next, and see a "showing X-Y of Z videos" summary. Only the current page is rendered, so a large catalogue stays fast.
+- **Charts tab** - six responsive [Recharts](https://recharts.org/) visualisations that respond to the active filters: views over time (area), engagements over time (line), top 10 videos by views and views by channel (horizontal bars), watch time by channel (bar), and video count by format (donut). Themed tooltips, compact axes, and an empty state when nothing matches.
+- **Filters** - free-text search across title and channel with a keyboard-accessible autocomplete (arrow keys, Enter, Escape), channel and format dropdowns, and a data-derived published-date range. All filters compose and drive both the table and charts, with a one-click reset that's disabled when nothing is applied.
+- **Theming** - five built-in palettes (Light, Dark, Ocean, Forest, Sunset) via a header switcher, persisted to `localStorage`, with the initial theme respecting the OS `prefers-color-scheme` setting.
+- **Animations** - subtle motion (via [Motion](https://motion.dev/)): staggered KPI card entrances, cross-fading tabs, animated table rows and autocomplete, hover/press feedback, and charts that draw in on load. All disabled automatically under the OS `prefers-reduced-motion` setting.
 - **Polish** - fully responsive layout, tabular-aligned numbers, human-friendly number/duration/date formatting, and explicit loading and error states with a cancellable (`AbortController`) data fetch.
 - **Chat assistant** - a floating chatbot that answers questions about the data ("top video by views", "which channel has the most watch time?"). It works with zero setup in demo mode, and upgrades to free-form answers via OpenAI when a key is supplied - see [Chat assistant](#chat-assistant).
-
-
 
 ## Project structure
 
 ```
 data/                 raw and processed CSVs
-jupyter_notebook/     etl.ipynb — cleaning pipeline
+jupyter_notebook/     etl.ipynb - cleaning pipeline
 sql/                  queries.sql + Python runners
 public/data/          posts.json & poststats.json consumed by the UI
 src/                  React app (components, hooks, helpers)
 ```
 
-
-
 ## Key decisions & trade-offs
 
-- **DuckDB over the CSVs** — real SQL with zero setup, at the cost of no persistence.
-- **Pre-computed JSON mirroring the cleaned tables** — simple and debuggable, but ships every daily row.
-- **Client-side join & aggregation** (`useVideoData`) — instant to iterate on, doesn't scale ([see below](#things-id-improve-with-more-time)).
-- **Filter options derived from the data** (`useFilterOptions`) — so they can't drift out of sync with the rows.
+- **DuckDB over the CSVs** - real SQL with zero setup, at the cost of no persistence.
+- **Pre-computed JSON mirroring the cleaned tables** - simple and debuggable, but ships every daily row.
+- **Client-side join & aggregation** (`useVideoData`) - instant to iterate on, doesn't scale ([see below](#things-id-improve-with-more-time)).
+- **Filter options derived from the data** (`useFilterOptions`) - so they can't drift out of sync with the rows.
 - **Small, composable hooks** keeping `App.tsx` a thin wiring layer.
-- **Client-side pagination** (`usePagination`) — renders only the current page, so a large catalogue stays fast to render and easy to scan, improves scalability.
-- **Resilient loading** — `AbortController` plus explicit loading/error states.
+- **Client-side pagination** (`usePagination`) - renders only the current page, so a large catalogue stays fast to render and easy to scan, improves scalability.
+- **Resilient loading** - `AbortController` plus explicit loading/error states.
 - **Tailwind v4 CSS-variable theming** for light/dark without per-theme markup.
-
-
 
 ## How to run the project
 
@@ -120,8 +115,6 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-
-
 #### 1. Run the ETL notebook
 
 Reads from `data/raw` and writes cleaned outputs to `data/processed`.
@@ -153,8 +146,8 @@ python3 sql/build_frontend_data.py
 
 This writes:
 
-- `public/data/posts.json` — one record per video (`video_id`, `account_name`, `published_at_date`, `video_url`, `video_type`, `title`, `video_length`, `thumbnail_url`).
-- `public/data/poststats.json` — daily stats, one record per row (`video_id`, `data_date`, `likes`, `comments`, `shares`, `views`, `watchtime`).
+- `public/data/posts.json` - one record per video (`video_id`, `account_name`, `published_at_date`, `video_url`, `video_type`, `title`, `video_length`, `thumbnail_url`).
+- `public/data/poststats.json` - daily stats, one record per row (`video_id`, `data_date`, `likes`, `comments`, `shares`, `views`, `watchtime`).
 
 Re-run this whenever the processed CSVs change.
 
@@ -179,67 +172,33 @@ yarn lint      # run ESLint
 
 > Uses Yarn (a `yarn.lock` is committed), but `npm install` / `npm run dev` work equally well if you prefer npm.
 
-
-
 ### Chat assistant
 
-The chat bubble in the bottom-right corner works in three modes, picking the
-best one available:
+The chat bubble in the bottom-right corner works in three modes, picking the best one available:
 
-- **Hosted OpenAI mode (the deployed site):** on the Vercel deployment, chat
-requests go through a serverless function (`api/chat.ts`) that holds the
-OpenAI key server-side — so free-form questions work for every visitor with
-no setup and no key ever reaching the browser. Answers stream from
-`gpt-4o-mini` with the currently *filtered* video data provided as context,
-and the model is instructed to answer only from that data.
-- **Demo mode (running locally, no setup):** common questions ("top video by
-views", "which channel has the most watch time?", "how many Shorts vs
-long-form?", "total engagements") are answered locally by computing over the
-same joined data that drives the dashboard. No network calls, no key, no cost.
-- **Bring-your-own-key (running locally, optional):** for free-form questions
-without the deployed proxy, either paste an OpenAI API key into the panel
-(stored only in your browser's `localStorage`), or copy `.env.example` to
-`.env.local` and set `VITE_OPENAI_API_KEY`, then restart the dev server.
+- **Hosted OpenAI mode (the deployed site):** on the Vercel deployment, chat requests go through an edge function (`api/chat.ts`) that holds the OpenAI key server-side - so free-form questions work for every visitor with no setup and no key ever reaching the browser. Answers stream from `gpt-4o-mini` with the currently *filtered* video data provided as context, and the model is instructed to answer only from that data.
+- **Demo mode (running locally, no setup):** common questions ("top video by views", "which channel has the most watch time?", "how many Shorts vs long-form?", "total engagements") are answered locally by computing over the same joined data that drives the dashboard. No network calls, no key, no cost.
+- **Bring-your-own-key (running locally, optional):** for free-form questions without the deployed proxy, either paste an OpenAI API key into the panel (stored only in your browser's `localStorage`), or copy `.env.example` to `.env.local` and set `VITE_OPENAI_API_KEY`, then restart the dev server.
 
 #### How the chatbot works
 
-The design goal is **accuracy over cleverness** — every number the bot quotes
-must match what's on screen:
+The design goal is **accuracy over cleverness** - every number the bot quotes must match what's on screen:
 
-- **All aggregation happens in code, never in the model.** LLMs are unreliable
-at arithmetic over long lists - early versions that received the ~2,300 raw
-rows produced plausible-but-wrong totals. Instead the app precomputes an exact
-fact sheet (overall totals, per-channel/per-format/per-month rollups, top-15
-lists) using the same joined data that drives the KPI cards and charts, and
-the model's only job is to pick the right precomputed number and narrate it.
-It's explicitly instructed never to do its own arithmetic and to say when a
-question falls outside the fact sheet rather than guess.
-- **Demo mode is the same idea without the model:** a small intent matcher
-(`src/lib/localAnswers.ts`) routes common questions straight to those code
-computed aggregates, so the chatbot is fully usable with no key at all.
-- **Filter awareness:** the bot answers over the currently *filtered* data
-(like everything else on the page), and prefixes answers with "Across your
-current filters…" when any filter is active so a filtered total is never
-mistaken for a global one.
+- **All aggregation happens in code, never in the model.** LLMs are unreliable at arithmetic over long lists - early versions that received the ~2,300 raw rows produced plausible-but-wrong totals. Instead the app precomputes an exact fact sheet (overall totals, per-channel/per-format/per-month rollups, top-15 lists) using the same joined data that drives the KPI cards and charts, and the model's only job is to pick the right precomputed number and narrate it. It's explicitly instructed never to do its own arithmetic and to say when a question falls outside the fact sheet rather than guess.
+- **Demo mode is the same idea without the model:** a small intent matcher (`src/lib/localAnswers.ts`) routes common questions straight to those code computed aggregates, so the chatbot is fully usable with no key at all.
+- **Filter awareness:** the bot answers over the currently *filtered* data (like everything else on the page), and prefixes answers with "Across your current filters…" when any filter is active so a filtered total is never mistaken for a global one.
 
-**Security note:** a key must never be baked into a public build — any
-`VITE_` variable is readable in the shipped JavaScript. That's why the
-deployed site uses the serverless proxy: the key lives in a Vercel
-environment variable, requests are validated and rate-limited per IP in
-`api/chat.ts`, and the OpenAI account carries a spend cap. The pasted-key
-path is for local review only.
+**Security note:** a key must never be baked into a public build - any `VITE_` variable is readable in the shipped JavaScript. That's why the deployed site uses the edge proxy: the key lives in a Vercel environment variable, requests are validated and rate-limited per IP in `api/chat.ts`, and the OpenAI account carries a spend cap. The pasted-key path is for local review only.
 
 ### Deployment (Vercel)
 
-The site deploys to [Vercel](https://vercel.com/) as a Vite static build plus
-the `api/chat.ts` edge function:
+Live demo: [play-sports-network-technical-exerc.vercel.app](https://play-sports-network-technical-exerc.vercel.app/)
 
-1. Import the GitHub repo in the Vercel dashboard — the Vite preset needs no
-configuration (build `yarn build`, output `dist/`).
-2. Add an `OPENAI_API_KEY` environment variable (Project → Settings →
-Environment Variables). This powers the chat proxy and is never exposed to
-the client.
-3. Every push to `main` redeploys automatically.
+The site deploys to [Vercel](https://vercel.com/) as a Vite static build plus the `api/chat.ts` edge function (see [Chat assistant](#chat-assistant) for how the proxy works):
+
+1. Import the GitHub repo in the Vercel dashboard. No `vercel.json` is needed - Vercel's Vite framework preset auto-detects the build command (`yarn build`) and output directory (`dist/`).
+2. Add an `OPENAI_API_KEY` environment variable (Project → Settings → Environment Variables) to power the chat proxy.
+3. Every push to `main` redeploys production, and every pull request gets its own preview deployment automatically.
 
 ### Tests
 
@@ -249,29 +208,22 @@ Three layers, sharing one deterministic fixture in `tests/fixtures/`: **unit** (
 yarn test                          # unit + integration (jsdom, no browser)
 yarn playwright install chromium   # one-time browser download for E2E
 yarn test:e2e                      # end-to-end (builds and previews automatically)
+yarn test:e2e --ui                 # end-to-end in Playwright's interactive UI mode
 ```
 
+Playwright's **UI mode** (`yarn test:e2e --ui`) opens an interactive runner where you can watch tests execute in a live browser, step through each action with time-travel snapshots, inspect the DOM and network at any point, and re-run individual tests on save - handy for writing or debugging a flow.
+
 > If Playwright complains the browser executable is missing, re-run `yarn playwright install chromium`. The `yarn test` suite is unaffected and runs anywhere.
-
-
 
 ## Things I'd improve with more time
 
 - **Push aggregation to the data layer.** `poststats.json` is shipped as a ~20MB row-per-record array and loaded entirely in the browser, where the join and all aggregations happen client-side. That's fine for a local exercise, but it doesn't scale well. I'd serve the data through a small API so filtering and grouping run on demand instead of loading the full dataset up front.
 - **Wire the tests into CI.** Integration (Vitest) and end-to-end (Playwright) suites now exist (see [Tests](#tests)); the next step is running them, alongside type-checking and linting, as Pull Request checks so nothing that breaks the build can land on `main`. This matters especially once multiple developers are working on the project.
-- **BDD/ATDD approach.** If I had more time I would have employed a BDD (Behaviour Driven Development) or an ATDD (Acceptance Testing Driven Development) approach. Using either of these approaches with using a red, green refactor methodology for tests I would have built a much more robust and production ready application. Writing code this way ensures the outcomes are well defined before the code is implemented. This approach helps later on in development ensuring that the intended functionality is preserved when iterating and adding new features and refactoring.
-- **Evolve the AI chatbot.** A chat assistant is now built (see [Chat assistant](#chat-assistant)) — it answers over a precomputed fact sheet, which keeps every number exact but limits the questions it can cover. The next step would be a small backend endpoint that uses the LLM as a text-to-query translator (e.g. generating SQL run against DuckDB, or calls into the existing aggregation layer), returning both a written answer and a chart/table reusing the dashboard's Recharts components. That keeps answers accurate and auditable while opening up arbitrary questions, and moves the OpenAI key server-side.
+- **BDD/ATDD approach.** With more time I'd adopt a BDD (Behaviour Driven Development) or ATDD (Acceptance Test Driven Development) workflow with a red-green-refactor cycle. Defining the expected outcomes before writing the code makes for a more robust, production-ready application and preserves the intended behaviour as features are added and refactored.
+- **Evolve the AI chatbot.** A chat assistant is now built (see [Chat assistant](#chat-assistant)) - it answers over a precomputed fact sheet, which keeps every number exact but limits the questions it can cover. The next step would be a small backend endpoint that uses the LLM as a text-to-query translator (e.g. generating SQL run against DuckDB, or calls into the existing aggregation layer), returning both a written answer and a chart/table reusing the dashboard's Recharts components. That keeps answers accurate and auditable while opening up arbitrary questions, and moves the OpenAI key server-side.
 
 ## AI & Tooling reflection
 
-**Did I use AI tools?** Yes.
-
-**What for?** I used **Cursor** (with its built-in models) throughout as a pair programmer. It helped substantially with:
-
-- Rapid iteration and boilerplate heavy tasks through code generation, this allowed me to focus on design decisions and useful features.
-- Scaffolding the React components and wiring up the filter/sort/pagination state.
-- Quick sanity checks and refactors (e.g. deriving filter options from the data rather than hard-coding them).
-
-It got most things right first time, but I still reviewed and tested everything rather than taking it on trust - type-checking, ESLint and the test suite made that easier.
-
-**Did it change how I worked?** Yes. It sped development up a lot, especially the boilerplate and getting a first version of each feature working. That left me more time for the data-modelling and UX decisions. I steered it closely and reviewed everything it produced. I find it works best when you clearly define the requirements and specifications in detail: the AI can then create a detailed plan and gather better context, allowing for more rapid iteration. Doing this helped me build a well-rounded application given the time constraints of this project.
+- **Did I use AI tools?** Yes - **Cursor** and **Claude** throughout, treated as tools I was driving rather than something building the project for me.
+- **What did I use them for?** Mostly speed on the mechanical parts - boilerplate, scaffolding components, first drafts of each feature - which freed me up for the decisions that shape the app: the data modelling, the DuckDB and pre-computed JSON approach, the hooks-based dashboard, and the "accuracy over cleverness" chatbot (every number computed in code, key kept server-side). I reviewed, ran and tested everything it produced, with type-checking, ESLint and the test suite assisting with that.
+- **Did they speed up or change how I worked?** Both. Noticeably faster on boilerplate and first versions, which left more time for the data and UX decisions, and it made me more deliberate about specs. The clearer my requirements, the better the output. I didn't take it on trust. For example, an early chatbot version let the model add up the raw data rows and it returned plausible-but-wrong totals, which is exactly why I moved all the calculations into code.
