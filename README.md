@@ -188,7 +188,13 @@ The design goal is **accuracy over cleverness** - every number the bot quotes mu
 - **Demo mode is the same idea without the model:** a small intent matcher (`src/lib/localAnswers.ts`) routes common questions straight to those code computed aggregates, so the chatbot is fully usable with no key at all.
 - **Filter awareness:** the bot answers over the currently *filtered* data (like everything else on the page), and prefixes answers with "Across your current filters…" when any filter is active so a filtered total is never mistaken for a global one.
 
-**Security note:** a key must never be baked into a public build - any `VITE_` variable is readable in the shipped JavaScript. That's why the deployed site uses the edge proxy: the key lives in a Vercel environment variable, requests are validated and rate-limited per IP in `api/chat.ts`, and the OpenAI account carries a spend cap. The pasted-key path is for local review only.
+**Security note:** a key must never be baked into a public build - any `VITE_` variable is readable in the shipped JavaScript. That's why the deployed site uses the edge proxy: the key lives in a Vercel environment variable and the OpenAI account carries a spend cap. The proxy also defends itself against direct callers (`api/chat.ts`):
+
+- **The system prompt is injected server-side.** The browser sends only the precomputed fact sheet plus the user/assistant history; requests containing a `system` message are rejected. That means someone hitting `/api/chat` directly can't swap out the instructions and use the key as a free general-purpose OpenAI proxy.
+- **Rate limiting uses the trusted client IP** (Vercel's `x-real-ip`, which callers can't spoof, rather than the client-controllable `x-forwarded-for`), and stale entries are evicted so the tracker can't grow unbounded.
+- **Request sizes are capped** - message count, per-message length, and fact-sheet size - so a single oversized request can't run up the OpenAI bill.
+
+The pasted-key path is for local review only. The shared prompt text lives in `src/lib/chatPrompt.ts` so the local bring-your-own-key path and the proxy stay in sync.
 
 ### Deployment (Vercel)
 
@@ -202,7 +208,7 @@ The site deploys to [Vercel](https://vercel.com/) as a Vite static build plus th
 
 ### Tests
 
-Three layers, sharing one deterministic fixture in `tests/fixtures/`: **unit** (Vitest) for the formatting helpers and derivation hooks, **integration** (Vitest + React Testing Library) rendering the wired-up `App` against a mocked `fetch`, and **end-to-end** (Playwright) driving real user flows in Chromium against a production build.
+Three layers, sharing one deterministic fixture in `tests/fixtures/`: **unit** (Vitest) for the formatting helpers, derivation hooks, and the chat feature (the `api/chat.ts` proxy's validation and rate limiting, and the `useChat` hook's demo/proxy/streaming behaviour), **integration** (Vitest + React Testing Library) rendering the wired-up `App` against a mocked `fetch`, and **end-to-end** (Playwright) driving real user flows in Chromium against a production build.
 
 ```bash
 yarn test                          # unit + integration (jsdom, no browser)
