@@ -27,13 +27,11 @@ interface FiltersProps {
 const selectClass =
   'rounded-lg border border-[var(--border)] bg-[var(--bg)] px-2.5 py-2 text-sm text-[var(--text-h)] transition-colors hover:bg-[var(--social-bg)]'
 
-// On phones each field takes half a row (search and reset go full width below).
 const fieldClass = 'flex flex-col gap-1.5 max-sm:min-w-[calc(50%-0.5rem)] max-sm:flex-1'
 
 const labelClass =
   'text-[11px] font-semibold uppercase tracking-wider text-[var(--text)]'
 
-/** Horizontal filter bar with search, dropdown filters and a reset button. */
 export function Filters({
   channels,
   videoTypes,

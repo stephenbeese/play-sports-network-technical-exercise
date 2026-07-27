@@ -21,16 +21,13 @@ describe('useVideoData', () => {
       const want = expected.get(row.video_id)!
       expect(row.views).toBe(want.views)
       expect(row.watchtime).toBe(want.watchtime)
-      // engagements is defined as likes + comments + shares.
       expect(row.engagements).toBe(row.likes + row.comments + row.shares)
       expect(row.engagements).toBe(want.engagements)
     }
 
-    // Rows arrive pre-sorted by views, most-viewed first.
     const views = result.current.rows.map((row) => row.views)
     expect(views).toEqual([...views].sort((a, b) => b - a))
 
-    // Every daily stat row is enriched and returned for the charts.
     expect(result.current.daily).toHaveLength(poststats.length)
   })
 })

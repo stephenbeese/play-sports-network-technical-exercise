@@ -2,11 +2,6 @@ import type { Post, PostStat } from '../../src/types'
 import postsJson from './posts.json' with { type: 'json' }
 import poststatsJson from './poststats.json' with { type: 'json' }
 
-/**
- * Shared, deterministic fixture used by both the integration and E2E suites.
- * The JSON files are the source of truth; the helpers below re-derive the
- * numbers tests assert on, so expectations can never drift from the data.
- */
 export const posts: Post[] = postsJson
 export const poststats: PostStat[] = poststatsJson
 
@@ -21,7 +16,6 @@ export interface AggregatedVideo {
   watchtime: number
 }
 
-/** Lifetime totals per video, mirroring the join in `useVideoData`. */
 export function aggregate(): AggregatedVideo[] {
   const byId = new Map<string, AggregatedVideo>()
 
@@ -51,7 +45,6 @@ export function aggregate(): AggregatedVideo[] {
 
 const aggregated = aggregate()
 
-/** Sorted video ids for a given metric/direction (matches the table's sort). */
 export function orderedIdsBy(
   key: 'views' | 'engagements' | 'watchtime',
   direction: 'asc' | 'desc' = 'desc',
@@ -61,7 +54,6 @@ export function orderedIdsBy(
     .map((row) => row.video_id)
 }
 
-/** Ordered titles for a metric/direction, handy for asserting table row order. */
 export function orderedTitlesBy(
   key: 'views' | 'engagements' | 'watchtime',
   direction: 'asc' | 'desc' = 'desc',

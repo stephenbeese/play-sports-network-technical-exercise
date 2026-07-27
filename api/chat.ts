@@ -1,29 +1,17 @@
-// Vercel edge function that proxies chat requests to OpenAI so the API key
-// stays server-side. GET is a probe the frontend uses to detect this proxy;
-// deployments without it (GitHub Pages, local dev) fall back to demo mode
-// or a pasted key.
-//
-// The system prompt is injected HERE, not accepted from the client — callers
-// send only the fact-sheet context plus user/assistant history, so the key
-// can't be repurposed as a general OpenAI proxy by swapping the instructions.
 import { SYSTEM_PROMPT } from '../src/lib/chatPrompt'
 
 export const config = { runtime: 'edge' }
 
 const MAX_MESSAGES = 40
-const MAX_MESSAGE_CHARS = 4_000 // per user/assistant message
-const MAX_CONTEXT_CHARS = 32_000 // fact sheet is a few KB; this is generous
-const RATE_LIMIT = 20 // requests per window per IP
+const MAX_MESSAGE_CHARS = 4_000
+const MAX_CONTEXT_CHARS = 32_000
+const RATE_LIMIT = 20
 const WINDOW_MS = 60_000
 const MAX_TRACKED_IPS = 10_000
 
-// ponytail: in-memory per-instance rate limit — enough to stop casual abuse
-// on a low-traffic demo; use Upstash/KV if this ever needs to be watertight.
 const hits = new Map<string, { count: number; start: number }>()
 
 function clientIp(req: Request): string {
-  // x-real-ip is set by Vercel's edge and can't be spoofed by the caller;
-  // x-forwarded-for is a client-controllable fallback for other hosts.
   return (
     req.headers.get('x-real-ip') ??
     req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
@@ -33,7 +21,6 @@ function clientIp(req: Request): string {
 
 function rateLimited(ip: string): boolean {
   const now = Date.now()
-  // Evict expired windows so the map can't grow without bound.
   if (hits.size >= MAX_TRACKED_IPS) {
     for (const [key, entry] of hits) {
       if (now - entry.start > WINDOW_MS) hits.delete(key)
@@ -110,8 +97,6 @@ export default async function handler(req: Request): Promise<Response> {
     return Response.json({ error: `OpenAI request failed (${upstream.status}).` }, { status: 502 })
   }
 
-  // Pass the SSE stream straight through — the frontend parses it the same
-  // way as a direct OpenAI response.
   return new Response(upstream.body, {
     headers: { 'Content-Type': 'text/event-stream' },
   })

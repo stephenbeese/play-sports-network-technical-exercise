@@ -9,7 +9,6 @@ describe('data loading states', () => {
     render(<App />)
 
     expect(await screen.findByText(/Failed to load data/)).toBeInTheDocument()
-    // The table should never appear when loading failed.
     expect(screen.queryByRole('table')).not.toBeInTheDocument()
   })
 })

@@ -12,7 +12,6 @@ const TABS: { id: Tab; labelKey: string }[] = [
   { id: 'charts', labelKey: 'tabs.charts' },
 ]
 
-/** Accessible tab bar for switching between the table and charts views. */
 export function Tabs({ value, onChange }: TabsProps) {
   const { t } = useTranslation()
   return (

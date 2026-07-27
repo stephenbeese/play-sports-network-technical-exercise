@@ -6,11 +6,8 @@ import { useChat } from '../lib/useChat'
 import type { DailyPoint } from '../lib/useFilteredVideos'
 
 interface ChatPanelProps {
-  /** Rows the assistant answers from (pass the filtered set). */
   rows: VideoRow[]
-  /** Filtered daily time series, for month/date-range questions. */
   daily: DailyPoint[]
-  /** True when any dashboard filter is active, so answers flag filtered totals. */
   filtersActive: boolean
 }
 
@@ -21,7 +18,6 @@ const SUGGESTION_KEYS = [
   'chat.suggestions.shortsVsLong',
 ]
 
-/** Floating chat assistant: demo mode with no key, OpenAI when a key is set. */
 export function ChatPanel({ rows, daily, filtersActive }: ChatPanelProps) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
@@ -35,8 +31,6 @@ export function ChatPanel({ rows, daily, filtersActive }: ChatPanelProps) {
   )
   const bottomRef = useRef<HTMLDivElement>(null)
 
-  // Keep the newest message in view — jump instantly when the panel opens,
-  // scroll smoothly as messages stream in.
   useEffect(() => {
     if (!open) return
     bottomRef.current?.scrollIntoView({ behavior: 'instant' })
@@ -88,8 +82,7 @@ export function ChatPanel({ rows, daily, filtersActive }: ChatPanelProps) {
                   {t('chat.clear')}
                 </button>
               )}
-              {/* The deployed site answers via the server-side proxy, so a
-                  pasted key is only relevant when running locally. */}
+              {}
               {!proxyAvailable && (
                 <button
                   type="button"

@@ -8,7 +8,6 @@ interface VideoData {
   error: string | null
 }
 
-/** Sum the daily stats for every video into a single lifetime total. */
 function aggregateStats(stats: PostStat[]): Map<string, Omit<VideoRow, keyof Post>> {
   const totals = new Map<string, Omit<VideoRow, keyof Post>>()
 
@@ -35,10 +34,6 @@ function aggregateStats(stats: PostStat[]): Map<string, Omit<VideoRow, keyof Pos
   return totals
 }
 
-/**
- * Loads the posts and per-day stats, joins them, and returns one row per video
- * with lifetime totals, sorted by views (most viewed first).
- */
 export function useVideoData(): VideoData {
   const [rows, setRows] = useState<VideoRow[]>([])
   const [daily, setDaily] = useState<DailyStatRow[]>([])

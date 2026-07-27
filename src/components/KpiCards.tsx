@@ -15,7 +15,6 @@ interface Kpi {
   accent: string
 }
 
-/** Summary metric cards for the currently filtered set of videos. */
 export function KpiCards({ rows }: KpiCardsProps) {
   const { t } = useTranslation()
   const matchedCount = rows.length

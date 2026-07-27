@@ -36,7 +36,6 @@ describe('formatCompact', () => {
   })
 
   it('keeps at most one fraction digit', () => {
-    // 2,770,000 would be 2.77m at full precision; it rounds to one digit.
     expect(formatCompact(2770000)).toBe('2.8m')
   })
 })
@@ -47,7 +46,6 @@ describe('formatWatchTime', () => {
   })
 
   it('uses compact notation for large hour counts', () => {
-    // 702,000 min / 60 = 11,700 hrs -> "11.7k hrs".
     expect(formatWatchTime(11700 * 60)).toBe('11.7k hrs')
   })
 })
@@ -71,7 +69,6 @@ describe('formatDuration', () => {
   })
 
   it('formats hour-plus lengths as h:mm:ss', () => {
-    // 1h 02m 05s.
     expect(formatDuration(3725000)).toBe('1:02:05')
   })
 
@@ -85,7 +82,6 @@ describe('formatDate', () => {
   it('reformats an ISO date into a readable day/month/year string', () => {
     const result = formatDate('2025-12-13')
     expect(result).toMatch(/^\d{1,2} \w{3} \d{4}$/)
-    // Month and year are timezone-stable for a mid-month date.
     expect(result).toContain('Dec 2025')
   })
 

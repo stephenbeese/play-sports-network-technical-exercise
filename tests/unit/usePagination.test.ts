@@ -25,7 +25,6 @@ describe('usePagination', () => {
   it('clamps the current page to the last page', () => {
     const { result } = setup(25)
     act(() => result.current.setPage(99))
-    // 25 items / 10 per page = 3 pages, so page 99 is reported as page 3.
     expect(result.current.currentPage).toBe(3)
     expect(result.current.startIndex).toBe(20)
   })

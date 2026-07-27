@@ -1,7 +1,3 @@
-// One-off generator for the deterministic test fixture.
-// Run with `node tests/fixtures/generate.mjs`. The emitted posts.json and
-// poststats.json are committed; this script exists only to keep the arithmetic
-// (per-day splits, engagement inversions) verifiable and reproducible.
 import { writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
@@ -10,9 +6,6 @@ const here = dirname(fileURLToPath(import.meta.url))
 
 const STAT_DATES = ['2025-06-01', '2025-06-02', '2025-06-03']
 
-// video_id, channel, type, published, title, length(ms), daily view split,
-// engagementBoost adds flat extra "shares" on day one so engagement ranking can
-// diverge from view ranking (keeps the sort test meaningful, not tautological).
 const VIDEOS = [
   ['v09', 'Gamma Rovers', 'Long-form', '2025-02-14', 'Gamma Documentary', 1200000, [200000, 180000, 120000], 0],
   ['v05', 'Beta United', 'Long-form', '2025-01-20', 'Beta Full Match', 900000, [180000, 140000, 100000], 0],
@@ -21,8 +14,6 @@ const VIDEOS = [
   ['v01', 'Alpha FC', 'Long-form', '2025-01-05', 'Alpha Season Review', 600000, [120000, 90000, 70000], 0],
   ['v11', 'Gamma Rovers', 'Long-form', '2025-05-01', 'Gamma Interview Special', 660000, [100000, 80000, 60000], 0],
   ['v02', 'Alpha FC', 'Short', '2025-02-10', 'Alpha Top Goals', 45000, [80000, 60000, 50000], 0],
-  // v10 is a Short with a big engagement boost: fewer views than several
-  // long-form videos, but its total engagements outrank most of them.
   ['v10', 'Gamma Rovers', 'Short', '2025-03-30', 'Gamma Highlights', 50000, [70000, 50000, 40000], 300000],
   ['v06', 'Beta United', 'Short', '2025-02-25', 'Beta Best Saves', 40000, [60000, 40000, 30000], 0],
   ['v08', 'Beta United', 'Short', '2025-05-12', 'Beta Fan Reactions', 35000, [40000, 30000, 20000], 0],

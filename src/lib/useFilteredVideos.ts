@@ -3,16 +3,11 @@ import { avgPercentWatched, type SortDirection, type SortKey } from './sort'
 import type { DailyStatRow, VideoRow } from '../types'
 import type { Filterable } from './useVideoFilters'
 
-/**
- * Numeric value a row sorts by for a given key. `avgPctWatched` is derived, and
- * videos with no views (NaN) fall to the bottom on descending sorts.
- */
 function sortValue(row: VideoRow, key: SortKey): number {
   const value = key === 'avgPctWatched' ? avgPercentWatched(row) : row[key]
   return Number.isFinite(value) ? value : Number.NEGATIVE_INFINITY
 }
 
-/** A daily point aggregated across every video matching the current filters. */
 export interface DailyPoint {
   date: string
   views: number
@@ -24,10 +19,6 @@ export interface FilteredVideos {
   filteredDaily: DailyPoint[]
 }
 
-/**
- * Applies the active filter predicate and sort to the videos, and aggregates the
- * matching daily stats into a single time series for the charts.
- */
 export function useFilteredVideos(
   rows: VideoRow[],
   daily: DailyStatRow[],

@@ -13,10 +13,6 @@ export interface FilterOptions {
   dateBounds: DateBounds
 }
 
-/**
- * Derives the dropdown options and publish-date bounds from the loaded videos,
- * so the filter controls stay in sync with the data rather than being hard-coded.
- */
 export function useFilterOptions(rows: VideoRow[]): FilterOptions {
   const channels = useMemo(
     () => Array.from(new Set(rows.map((row) => row.account_name))).sort(),

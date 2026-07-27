@@ -2,7 +2,6 @@ import { useCallback, useMemo, useState } from 'react'
 import { ALL } from './constants'
 import type { DateBounds } from './useFilterOptions'
 
-/** Fields any record must expose to be tested against the active filters. */
 export interface Filterable {
   title: string
   account_name: string
@@ -14,13 +13,9 @@ export interface VideoFilters {
   search: string
   channel: string
   videoType: string
-  /** Selected "from" date, defaulting to the earliest publish date. */
   effectiveDateFrom: string
-  /** Selected "to" date, defaulting to the latest publish date. */
   effectiveDateTo: string
-  /** True when any filter differs from its default, enabling the reset button. */
   canReset: boolean
-  /** Predicate that returns true when a record matches every active filter. */
   matchesFilters: (item: Filterable) => boolean
   setSearch: (value: string) => void
   setChannel: (value: string) => void
@@ -30,10 +25,6 @@ export interface VideoFilters {
   reset: () => void
 }
 
-/**
- * Owns the search/channel/format/date-range filter state and exposes a memoized
- * predicate so both the table and charts can filter against the same criteria.
- */
 export function useVideoFilters(dateBounds: DateBounds): VideoFilters {
   const [search, setSearch] = useState('')
   const [channel, setChannel] = useState(ALL)

@@ -13,7 +13,6 @@ const firstPageCount = Math.min(DEFAULT_PAGE_SIZE, videoCount)
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/')
-  // Wait for the initial load to settle into the table view.
   await expect(page.getByRole('table')).toBeVisible()
 })
 
@@ -38,7 +37,6 @@ test('search suggestions filter the table', async ({ page }) => {
   await expect(suggestion).toBeVisible()
   await suggestion.click()
 
-  // Titles are unique, so picking one narrows the table to that single video.
   await expect(rows(page)).toHaveCount(1)
 })
 
@@ -87,7 +85,6 @@ test('charts tab renders the chart sections', async ({ page }) => {
   ]) {
     await expect(page.getByRole('heading', { name: heading })).toBeVisible()
   }
-  // Real browser layout means Recharts actually draws SVGs.
   await expect(page.locator('svg').first()).toBeVisible()
 })
 

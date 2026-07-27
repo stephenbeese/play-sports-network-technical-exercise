@@ -1,13 +1,9 @@
 export type Theme = 'light' | 'dark' | 'ocean' | 'forest' | 'sunset'
 
 export interface ThemeOption {
-  /** Value stored in localStorage and set as `data-theme`. */
   id: Theme
-  /** Human-readable name shown in the picker. */
   label: string
-  /** Whether the palette is dark-based (drives the Tailwind `dark:` variant). */
   isDark: boolean
-  /** Accent colour used for the swatch preview in the picker. */
   swatch: string
 }
 
