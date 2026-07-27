@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
+import { useTranslation } from 'react-i18next'
 import type { VideoRow } from '../types'
 import { useChat } from '../lib/useChat'
 import type { DailyPoint } from '../lib/useFilteredVideos'
@@ -13,15 +14,16 @@ interface ChatPanelProps {
   filtersActive: boolean
 }
 
-const SUGGESTED_QUESTIONS = [
-  'Top video by views',
-  'Which channel has the most watch time?',
-  'Views in December 2025',
-  'How many Shorts vs long-form?',
+const SUGGESTION_KEYS = [
+  'chat.suggestions.topVideo',
+  'chat.suggestions.topChannelWatchTime',
+  'chat.suggestions.viewsDecember',
+  'chat.suggestions.shortsVsLong',
 ]
 
 /** Floating chat assistant: demo mode with no key, OpenAI when a key is set. */
 export function ChatPanel({ rows, daily, filtersActive }: ChatPanelProps) {
+  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [input, setInput] = useState('')
   const [showSettings, setShowSettings] = useState(false)
@@ -54,7 +56,7 @@ export function ChatPanel({ rows, daily, filtersActive }: ChatPanelProps) {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        aria-label={open ? 'Close chat assistant' : 'Open chat assistant'}
+        aria-label={open ? t('chat.close') : t('chat.open')}
         className="fixed bottom-5 right-5 z-40 flex h-13 w-13 items-center justify-center rounded-full border border-[var(--accent-border)] bg-[var(--accent)] p-3.5 text-xl text-white shadow-lg transition-transform hover:scale-105"
       >
         {open ? '✕' : '💬'}
@@ -71,9 +73,9 @@ export function ChatPanel({ rows, daily, filtersActive }: ChatPanelProps) {
           >
             <div className="flex items-center justify-between border-b border-[var(--border)] px-4 py-3">
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-[var(--text-h)]">Data assistant</p>
+                <p className="text-sm font-semibold text-[var(--text-h)]">{t('chat.title')}</p>
                 <p className="truncate text-[11px] text-[var(--text)]">
-                  {demoMode ? 'Demo mode — answers computed locally' : 'OpenAI · gpt-4o-mini'}
+                  {demoMode ? t('chat.demoSubtitle') : t('chat.openaiSubtitle')}
                 </p>
               </div>
               <div className="flex shrink-0 items-center gap-2">
@@ -83,7 +85,7 @@ export function ChatPanel({ rows, daily, filtersActive }: ChatPanelProps) {
                   onClick={clear}
                   className="whitespace-nowrap rounded-lg border border-[var(--border)] px-2 py-1 text-xs text-[var(--text)] transition-colors hover:bg-[var(--social-bg)]"
                 >
-                  Clear
+                  {t('chat.clear')}
                 </button>
               )}
               {/* The deployed site answers via the server-side proxy, so a
@@ -97,7 +99,7 @@ export function ChatPanel({ rows, daily, filtersActive }: ChatPanelProps) {
                   }}
                   className="whitespace-nowrap rounded-lg border border-[var(--border)] px-2 py-1 text-xs text-[var(--text)] transition-colors hover:bg-[var(--social-bg)]"
                 >
-                  {apiKey ? 'Key ✓' : 'Add key'}
+                  {apiKey ? t('chat.keySet') : t('chat.addKey')}
                 </button>
               )}
               </div>
@@ -109,7 +111,7 @@ export function ChatPanel({ rows, daily, filtersActive }: ChatPanelProps) {
                   type="password"
                   value={keyDraft}
                   onChange={(e) => setKeyDraft(e.target.value)}
-                  placeholder="OpenAI API key (stored in this browser only)"
+                  placeholder={t('chat.keyPlaceholder')}
                   className="min-w-0 flex-1 rounded-lg border border-[var(--border)] bg-[var(--bg)] px-2 py-1.5 text-xs text-[var(--text-h)]"
                 />
                 <button
@@ -120,7 +122,7 @@ export function ChatPanel({ rows, daily, filtersActive }: ChatPanelProps) {
                   }}
                   className="rounded-lg bg-[var(--accent)] px-3 py-1.5 text-xs font-semibold text-white"
                 >
-                  Save
+                  {t('chat.save')}
                 </button>
               </div>
             )}
@@ -129,20 +131,22 @@ export function ChatPanel({ rows, daily, filtersActive }: ChatPanelProps) {
               {messages.length === 0 && (
                 <div>
                   <p className="text-xs text-[var(--text)]">
-                    Ask about the videos, or try one of these — answers respect the current
-                    filters.
+                    {t('chat.intro')}
                   </p>
                   <div className="mt-3 flex flex-wrap gap-2">
-                    {SUGGESTED_QUESTIONS.map((question) => (
-                      <button
-                        key={question}
-                        type="button"
-                        onClick={() => send(question)}
-                        className="rounded-full border border-[var(--accent-border)] bg-[var(--accent-bg)] px-3 py-1.5 text-xs text-[var(--text-h)] transition-colors hover:bg-[var(--social-bg)]"
-                      >
-                        {question}
-                      </button>
-                    ))}
+                    {SUGGESTION_KEYS.map((key) => {
+                      const question = t(key)
+                      return (
+                        <button
+                          key={key}
+                          type="button"
+                          onClick={() => send(question)}
+                          className="rounded-full border border-[var(--accent-border)] bg-[var(--accent-bg)] px-3 py-1.5 text-xs text-[var(--text-h)] transition-colors hover:bg-[var(--social-bg)]"
+                        >
+                          {question}
+                        </button>
+                      )
+                    })}
                   </div>
                 </div>
               )}
@@ -155,7 +159,7 @@ export function ChatPanel({ rows, daily, filtersActive }: ChatPanelProps) {
                       : 'bg-[var(--social-bg)] text-[var(--text-h)]'
                   } ${message.content === '' ? 'animate-pulse' : ''}`}
                 >
-                  {message.content || 'Thinking…'}
+                  {message.content || t('chat.thinking')}
                 </div>
               ))}
               <div ref={bottomRef} />
@@ -171,8 +175,8 @@ export function ChatPanel({ rows, daily, filtersActive }: ChatPanelProps) {
               <input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask a question…"
-                aria-label="Chat message"
+                placeholder={t('chat.inputPlaceholder')}
+                aria-label={t('chat.inputAria')}
                 className="min-w-0 flex-1 rounded-lg border border-[var(--border)] bg-[var(--bg)] px-3 py-2 text-sm text-[var(--text-h)]"
               />
               <button
@@ -180,7 +184,7 @@ export function ChatPanel({ rows, daily, filtersActive }: ChatPanelProps) {
                 disabled={sending || input.trim() === ''}
                 className="rounded-lg bg-[var(--accent)] px-3 py-2 text-sm font-semibold text-white disabled:opacity-50"
               >
-                Send
+                {t('chat.send')}
               </button>
             </form>
           </motion.div>

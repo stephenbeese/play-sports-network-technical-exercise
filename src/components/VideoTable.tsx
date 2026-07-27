@@ -1,6 +1,8 @@
 import { motion } from 'motion/react'
+import { useTranslation } from 'react-i18next'
 import type { VideoRow } from '../types'
 import {
+  formatChannel,
   formatDate,
   formatDuration,
   formatNumber,
@@ -25,18 +27,18 @@ interface VideoTableProps {
   onSortDirectionChange: (sortDirection: SortDirection) => void
 }
 
-const SORTABLE_COLUMNS: { key: SortKey; label: string; className: string }[] = [
-  { key: 'views', label: 'Views', className: 'px-4' },
-  { key: 'engagements', label: 'Engagements', className: 'px-4' },
-  { key: 'watchtime', label: 'Est. Watch Time', className: 'px-6' },
-  { key: 'avgPctWatched', label: 'Avg % Watched', className: 'px-6' },
+const SORTABLE_COLUMNS: { key: SortKey; labelKey: string; className: string }[] = [
+  { key: 'views', labelKey: 'table.views', className: 'px-4' },
+  { key: 'engagements', labelKey: 'table.engagements', className: 'px-4' },
+  { key: 'watchtime', labelKey: 'table.watchTime', className: 'px-6' },
+  { key: 'avgPctWatched', labelKey: 'table.avgWatched', className: 'px-6' },
 ]
 
-const RANK_OPTIONS: { value: SortKey; label: string }[] = [
-  { value: 'views', label: 'Views' },
-  { value: 'engagements', label: 'Engagements' },
-  { value: 'watchtime', label: 'Est. Watch Time' },
-  { value: 'avgPctWatched', label: 'Avg % Watched' },
+const RANK_OPTIONS: { value: SortKey; labelKey: string }[] = [
+  { value: 'views', labelKey: 'table.views' },
+  { value: 'engagements', labelKey: 'table.engagements' },
+  { value: 'watchtime', labelKey: 'table.watchTime' },
+  { value: 'avgPctWatched', labelKey: 'table.avgWatched' },
 ]
 
 /**
@@ -58,6 +60,7 @@ export function VideoTable({
   onSortKeyChange,
   onSortDirectionChange,
 }: VideoTableProps) {
+  const { t } = useTranslation()
   const handleColumnSort = (key: SortKey) => {
     if (key === sortKey) {
       onSortDirectionChange(sortDirection === 'desc' ? 'asc' : 'desc')
@@ -80,17 +83,17 @@ export function VideoTable({
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[var(--border)] px-6 py-5">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--accent)]">
-            Editorial Leaderboard
+            {t('table.eyebrow')}
           </p>
           <h2 className="!m-0 !mt-1 !text-2xl !font-semibold !tracking-tight text-[var(--text-h)]">
-            Videos driving performance
+            {t('table.heading')}
           </h2>
         </div>
 
         <div className="flex flex-wrap items-center gap-4">
           <label className="flex items-center gap-2">
             <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text)]">
-              Rank by
+              {t('table.rankBy')}
             </span>
             <select
               value={sortKey}
@@ -101,7 +104,7 @@ export function VideoTable({
             >
               {RANK_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
-                  {option.label}
+                  {t(option.labelKey)}
                 </option>
               ))}
             </select>
@@ -109,7 +112,7 @@ export function VideoTable({
 
           <label className="flex items-center gap-2">
             <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text)]">
-              Order
+              {t('table.order')}
             </span>
             <select
               value={sortDirection}
@@ -118,8 +121,8 @@ export function VideoTable({
               }
               className="rounded-lg border border-[var(--border)] bg-[var(--bg)] px-2.5 py-1.5 text-sm text-[var(--text-h)] transition-colors hover:bg-[var(--social-bg)]"
             >
-              <option value="desc">Highest first</option>
-              <option value="asc">Lowest first</option>
+              <option value="desc">{t('table.highestFirst')}</option>
+              <option value="asc">{t('table.lowestFirst')}</option>
             </select>
           </label>
         </div>
@@ -129,9 +132,9 @@ export function VideoTable({
         <table className="w-full min-w-[1120px] border-collapse text-left">
           <thead>
             <tr className="border-b border-[var(--border)] text-[11px] font-semibold uppercase tracking-wider text-[var(--text)]">
-              <th className="px-6 py-4 font-semibold">Video</th>
-              <th className="px-4 py-4 font-semibold">Channel</th>
-              <th className="px-4 py-4 font-semibold">Format</th>
+              <th className="px-6 py-4 font-semibold">{t('table.video')}</th>
+              <th className="px-4 py-4 font-semibold">{t('table.channel')}</th>
+              <th className="px-4 py-4 font-semibold">{t('table.format')}</th>
               {SORTABLE_COLUMNS.map((column) => {
                 const active = sortKey === column.key
                 return (
@@ -155,7 +158,7 @@ export function VideoTable({
                           : 'font-semibold'
                       }`}
                     >
-                      {column.label}
+                      {t(column.labelKey)}
                       {active && (
                         <span
                           aria-hidden="true"
@@ -213,13 +216,15 @@ export function VideoTable({
                         {row.title}
                       </a>
                       <p className="mt-0.5 text-xs text-[var(--text)]">
-                        Published {formatDate(row.published_at_date)}
+                        {t('table.published', {
+                          date: formatDate(row.published_at_date),
+                        })}
                       </p>
                     </div>
                   </div>
                 </td>
                 <td className="px-4 py-3 text-sm text-[var(--text)]">
-                  {row.account_name}
+                  {formatChannel(row.account_name)}
                 </td>
                 <td className="px-4 py-3">
                   <FormatBadge format={row.video_type} />

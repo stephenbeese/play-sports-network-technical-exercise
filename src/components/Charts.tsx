@@ -16,7 +16,8 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
-import { formatCompact, formatDate, formatNumber, formatWatchTime } from '../lib/format'
+import { useTranslation } from 'react-i18next'
+import { formatChannel, formatCompact, formatDate, formatNumber, formatWatchTime } from '../lib/format'
 import { useChartData } from '../lib/useChartData'
 import { prefersReducedMotion } from '../lib/motion'
 import type { VideoRow } from '../types'
@@ -111,6 +112,7 @@ function ChartTooltip({
 
 /** Grid of summary charts derived from the filtered videos and daily stats. */
 export function Charts({ rows, daily }: ChartsProps) {
+  const { t } = useTranslation()
   const { topVideos, viewsByChannel, watchTimeByChannel, formatSplit } =
     useChartData(rows)
 
@@ -120,7 +122,7 @@ export function Charts({ rows, daily }: ChartsProps) {
   if (rows.length === 0) {
     return (
       <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg)] p-10 text-center text-sm text-[var(--text)]">
-        No data to chart. Try adjusting your filters.
+        {t('charts.empty')}
       </div>
     )
   }
@@ -128,7 +130,7 @@ export function Charts({ rows, daily }: ChartsProps) {
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
       <div className={`${cardClass} lg:col-span-2`}>
-        <h3 className={titleClass}>Views over time</h3>
+        <h3 className={titleClass}>{t('charts.viewsOverTime')}</h3>
         <ResponsiveContainer width="100%" height={320}>
           <AreaChart data={daily} margin={{ left: 8, right: 16 }}>
             <defs>
@@ -149,7 +151,7 @@ export function Charts({ rows, daily }: ChartsProps) {
               isAnimationActive={animate}
               type="monotone"
               dataKey="views"
-              name="Views"
+              name={t('charts.seriesViews')}
               stroke={VIEWS_COLOR}
               fill="url(#viewsGradient)"
               strokeWidth={2}
@@ -159,7 +161,7 @@ export function Charts({ rows, daily }: ChartsProps) {
       </div>
 
       <div className={`${cardClass} lg:col-span-2`}>
-        <h3 className={titleClass}>Engagements over time</h3>
+        <h3 className={titleClass}>{t('charts.engagementsOverTime')}</h3>
         <ResponsiveContainer width="100%" height={320}>
           <LineChart data={daily} margin={{ left: 8, right: 16 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
@@ -174,7 +176,7 @@ export function Charts({ rows, daily }: ChartsProps) {
               isAnimationActive={animate}
               type="monotone"
               dataKey="engagements"
-              name="Engagements"
+              name={t('charts.seriesEngagements')}
               stroke={ENGAGEMENTS_COLOR}
               strokeWidth={2}
               dot={false}
@@ -184,7 +186,7 @@ export function Charts({ rows, daily }: ChartsProps) {
       </div>
 
       <div className={cardClass}>
-        <h3 className={titleClass}>Top 10 videos by views</h3>
+        <h3 className={titleClass}>{t('charts.top10')}</h3>
         <ResponsiveContainer width="100%" height={360}>
           <BarChart
             data={topVideos}
@@ -209,7 +211,7 @@ export function Charts({ rows, daily }: ChartsProps) {
               cursor={HOVER_CURSOR}
               content={<ChartTooltip valueFormatter={formatNumber} />}
             />
-            <Bar isAnimationActive={animate} dataKey="views" name="Views" fill={VIEWS_COLOR} radius={[0, 4, 4, 0]}>
+            <Bar isAnimationActive={animate} dataKey="views" name={t('charts.seriesViews')} fill={VIEWS_COLOR} radius={[0, 4, 4, 0]}>
               <LabelList
                 dataKey="views"
                 position="right"
@@ -223,7 +225,7 @@ export function Charts({ rows, daily }: ChartsProps) {
       </div>
 
       <div className={cardClass}>
-        <h3 className={titleClass}>Views by channel</h3>
+        <h3 className={titleClass}>{t('charts.viewsByChannel')}</h3>
         <ResponsiveContainer width="100%" height={360}>
           <BarChart
             data={viewsByChannel}
@@ -237,13 +239,14 @@ export function Charts({ rows, daily }: ChartsProps) {
               dataKey="account_name"
               width={130}
               interval={0}
+              tickFormatter={formatChannel}
               {...axisProps}
             />
             <Tooltip
               cursor={HOVER_CURSOR}
-              content={<ChartTooltip valueFormatter={formatNumber} />}
+              content={<ChartTooltip labelFormatter={formatChannel} valueFormatter={formatNumber} />}
             />
-            <Bar isAnimationActive={animate} dataKey="views" name="Views" fill={VIEWS_COLOR} radius={[0, 4, 4, 0]}>
+            <Bar isAnimationActive={animate} dataKey="views" name={t('charts.seriesViews')} fill={VIEWS_COLOR} radius={[0, 4, 4, 0]}>
               <LabelList
                 dataKey="views"
                 position="right"
@@ -257,7 +260,7 @@ export function Charts({ rows, daily }: ChartsProps) {
       </div>
 
       <div className={cardClass}>
-        <h3 className={titleClass}>Video count by format</h3>
+        <h3 className={titleClass}>{t('charts.videoCountByFormat')}</h3>
         <ResponsiveContainer width="100%" height={360}>
           <PieChart>
             <Pie
@@ -285,7 +288,7 @@ export function Charts({ rows, daily }: ChartsProps) {
       </div>
 
       <div className={cardClass}>
-        <h3 className={titleClass}>Estimated watch time by channel</h3>
+        <h3 className={titleClass}>{t('charts.watchTimeByChannel')}</h3>
         <ResponsiveContainer width="100%" height={360}>
           <BarChart data={watchTimeByChannel} margin={{ left: 8, right: 16 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
@@ -295,6 +298,7 @@ export function Charts({ rows, daily }: ChartsProps) {
               angle={-30}
               textAnchor="end"
               height={80}
+              tickFormatter={formatChannel}
               {...axisProps}
             />
             <YAxis
@@ -303,12 +307,12 @@ export function Charts({ rows, daily }: ChartsProps) {
             />
             <Tooltip
               cursor={HOVER_CURSOR}
-              content={<ChartTooltip valueFormatter={formatWatchTime} />}
+              content={<ChartTooltip labelFormatter={formatChannel} valueFormatter={formatWatchTime} />}
             />
             <Bar
               isAnimationActive={animate}
               dataKey="watchtime"
-              name="Estimated watch time"
+              name={t('charts.seriesWatchTime')}
               fill={WATCHTIME_COLOR}
               radius={[4, 4, 0, 0]}
             />

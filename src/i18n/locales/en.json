@@ -1,0 +1,106 @@
+{
+  "common": {
+    "logo": "PSN",
+    "appName": "Play Sports Network",
+    "footer": "Play Sports Network — Content performance dashboard"
+  },
+  "app": {
+    "loading": "Loading videos…",
+    "loadError": "Failed to load data: {{error}}"
+  },
+  "filters": {
+    "searchLabel": "Search videos",
+    "searchPlaceholder": "Search by title or channel…",
+    "channel": "Channel",
+    "allChannels": "All channels",
+    "format": "Format",
+    "allFormats": "All formats",
+    "publishedFrom": "Published from",
+    "publishedTo": "Published to",
+    "reset": "Reset"
+  },
+  "kpi": {
+    "totalViews": "Total Views",
+    "totalViewsHint": "Across the selected window",
+    "watchTime": "Estimated Watch Time",
+    "watchTimeHint": "Estimated audience attention",
+    "engagements": "Engagements",
+    "engagementsHint": "Likes, comments and shares",
+    "activeVideos": "Active Videos",
+    "activeVideosHint": "{{matched}} matched filters"
+  },
+  "tabs": {
+    "ariaLabel": "View",
+    "table": "Table",
+    "charts": "Charts"
+  },
+  "table": {
+    "eyebrow": "Editorial Leaderboard",
+    "heading": "Videos driving performance",
+    "rankBy": "Rank by",
+    "order": "Order",
+    "highestFirst": "Highest first",
+    "lowestFirst": "Lowest first",
+    "video": "Video",
+    "channel": "Channel",
+    "format": "Format",
+    "views": "Views",
+    "engagements": "Engagements",
+    "watchTime": "Est. Watch Time",
+    "avgWatched": "Avg % Watched",
+    "published": "Published {{date}}"
+  },
+  "pagination": {
+    "rowsPerPage": "Rows per page",
+    "showing": "Showing <0>{{first}}–{{last}}</0> of <1>{{total}}</1> videos",
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page <0>{{page}}</0> of {{pageCount}}"
+  },
+  "charts": {
+    "empty": "No data to chart. Try adjusting your filters.",
+    "viewsOverTime": "Views over time",
+    "engagementsOverTime": "Engagements over time",
+    "top10": "Top 10 videos by views",
+    "viewsByChannel": "Views by channel",
+    "videoCountByFormat": "Video count by format",
+    "watchTimeByChannel": "Estimated watch time by channel",
+    "seriesViews": "Views",
+    "seriesEngagements": "Engagements",
+    "seriesWatchTime": "Estimated watch time"
+  },
+  "chat": {
+    "open": "Open chat assistant",
+    "close": "Close chat assistant",
+    "title": "Data assistant",
+    "demoSubtitle": "Demo mode — answers computed locally",
+    "openaiSubtitle": "OpenAI · gpt-4o-mini",
+    "clear": "Clear",
+    "keySet": "Key ✓",
+    "addKey": "Add key",
+    "keyPlaceholder": "OpenAI API key (stored in this browser only)",
+    "save": "Save",
+    "intro": "Ask about the videos, or try one of these — answers respect the current filters.",
+    "thinking": "Thinking…",
+    "inputPlaceholder": "Ask a question…",
+    "inputAria": "Chat message",
+    "send": "Send",
+    "suggestions": {
+      "topVideo": "Top video by views",
+      "topChannelWatchTime": "Which channel has the most watch time?",
+      "viewsDecember": "Views in December 2025",
+      "shortsVsLong": "How many Shorts vs long-form?"
+    }
+  },
+  "theme": {
+    "change": "Change colour theme",
+    "menuLabel": "Colour theme",
+    "names": {
+      "light": "Light",
+      "dark": "Dark",
+      "ocean": "Ocean",
+      "forest": "Forest",
+      "sunset": "Sunset"
+    }
+  }
+}

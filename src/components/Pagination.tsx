@@ -1,4 +1,5 @@
 import { motion } from 'motion/react'
+import { Trans, useTranslation } from 'react-i18next'
 
 interface PaginationProps {
   page: number
@@ -19,6 +20,7 @@ export function Pagination({
   onPageChange,
   onPageSizeChange,
 }: PaginationProps) {
+  const { t } = useTranslation()
   const firstItem = totalItems === 0 ? 0 : (page - 1) * pageSize + 1
   const lastItem = Math.min(page * pageSize, totalItems)
 
@@ -29,7 +31,7 @@ export function Pagination({
     <div className="mt-4 flex flex-col items-center justify-between gap-3 sm:flex-row">
       <div className="flex items-center gap-4">
         <label className="flex items-center gap-2 text-xs text-[var(--text)]">
-          Rows per page
+          {t('pagination.rowsPerPage')}
           <select
             value={pageSize}
             onChange={(event) => onPageSizeChange(Number(event.target.value))}
@@ -44,15 +46,14 @@ export function Pagination({
         </label>
 
         <p className="text-xs text-[var(--text)]">
-          Showing{' '}
-          <span className="font-semibold text-[var(--text-h)]">
-            {firstItem}–{lastItem}
-          </span>{' '}
-          of{' '}
-          <span className="font-semibold text-[var(--text-h)]">
-            {totalItems}
-          </span>{' '}
-          videos
+          <Trans
+            i18nKey="pagination.showing"
+            values={{ first: firstItem, last: lastItem, total: totalItems }}
+            components={[
+              <span className="font-semibold text-[var(--text-h)]" />,
+              <span className="font-semibold text-[var(--text-h)]" />,
+            ]}
+          />
         </p>
       </div>
 
@@ -65,12 +66,16 @@ export function Pagination({
             onClick={() => onPageChange(page - 1)}
             disabled={page <= 1}
           >
-            Previous
+            {t('pagination.previous')}
           </motion.button>
           <span className="px-2 text-sm text-[var(--text)]">
-            Page{' '}
-            <span className="font-semibold text-[var(--text-h)]">{page}</span> of{' '}
-            {pageCount}
+            <Trans
+              i18nKey="pagination.page"
+              values={{ page, pageCount }}
+              components={[
+                <span className="font-semibold text-[var(--text-h)]" />,
+              ]}
+            />
           </span>
           <motion.button
             type="button"
@@ -79,7 +84,7 @@ export function Pagination({
             onClick={() => onPageChange(page + 1)}
             disabled={page >= pageCount}
           >
-            Next
+            {t('pagination.next')}
           </motion.button>
         </div>
       )}

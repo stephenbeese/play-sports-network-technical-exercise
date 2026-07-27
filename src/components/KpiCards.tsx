@@ -1,4 +1,5 @@
 import { motion } from 'motion/react'
+import { useTranslation } from 'react-i18next'
 import type { VideoRow } from '../types'
 import { formatCompact, formatNumber, formatWatchTime } from '../lib/format'
 import { fadeUp, staggerContainer } from '../lib/motion'
@@ -16,6 +17,7 @@ interface Kpi {
 
 /** Summary metric cards for the currently filtered set of videos. */
 export function KpiCards({ rows }: KpiCardsProps) {
+  const { t } = useTranslation()
   const matchedCount = rows.length
   const activeCount = rows.reduce(
     (count, row) => (row.views > 0 ? count + 1 : count),
@@ -33,27 +35,27 @@ export function KpiCards({ rows }: KpiCardsProps) {
 
   const kpis: Kpi[] = [
     {
-      label: 'Total Views',
+      label: t('kpi.totalViews'),
       value: formatCompact(totals.views),
-      hint: 'Across the selected window',
+      hint: t('kpi.totalViewsHint'),
       accent: 'var(--metric-views)',
     },
     {
-      label: 'Estimated Watch Time',
+      label: t('kpi.watchTime'),
       value: formatWatchTime(totals.watchtime),
-      hint: 'Estimated audience attention',
+      hint: t('kpi.watchTimeHint'),
       accent: 'var(--metric-watchtime)',
     },
     {
-      label: 'Engagements',
+      label: t('kpi.engagements'),
       value: formatCompact(totals.engagements),
-      hint: 'Likes, comments and shares',
+      hint: t('kpi.engagementsHint'),
       accent: 'var(--metric-engagements)',
     },
     {
-      label: 'Active Videos',
+      label: t('kpi.activeVideos'),
       value: formatNumber(activeCount),
-      hint: `${formatNumber(matchedCount)} matched filters`,
+      hint: t('kpi.activeVideosHint', { matched: formatNumber(matchedCount) }),
       accent: 'var(--accent)',
     },
   ]

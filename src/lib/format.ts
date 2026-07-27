@@ -43,6 +43,25 @@ export function formatDuration(ms: number): string {
   return `${minutes}:${pad(seconds)}`
 }
 
+/** Network brand acronyms that should stay upper-cased when title-casing. */
+const CHANNEL_ACRONYMS = new Set(['GCN', 'GMBN', 'GTN', 'EMBN'])
+
+/**
+ * Convert a SCREAMING-CASE channel name to a human-readable form,
+ * e.g. "GCN AUF DEUTSCH" -> "GCN Auf Deutsch". Known brand acronyms
+ * (GCN, GMBN, GTN, EMBN) are preserved in uppercase.
+ */
+export function formatChannel(name: string): string {
+  return name
+    .split(/\s+/)
+    .map((word) =>
+      CHANNEL_ACRONYMS.has(word.toUpperCase())
+        ? word.toUpperCase()
+        : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase(),
+    )
+    .join(' ')
+}
+
 /** Format an ISO date (YYYY-MM-DD) as "13 Dec 2025". */
 export function formatDate(isoDate: string): string {
   const date = new Date(isoDate)

@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next'
+
 type Tab = 'table' | 'charts'
 
 interface TabsProps {
@@ -5,17 +7,18 @@ interface TabsProps {
   onChange: (tab: Tab) => void
 }
 
-const TABS: { id: Tab; label: string }[] = [
-  { id: 'table', label: 'Table' },
-  { id: 'charts', label: 'Charts' },
+const TABS: { id: Tab; labelKey: string }[] = [
+  { id: 'table', labelKey: 'tabs.table' },
+  { id: 'charts', labelKey: 'tabs.charts' },
 ]
 
 /** Accessible tab bar for switching between the table and charts views. */
 export function Tabs({ value, onChange }: TabsProps) {
+  const { t } = useTranslation()
   return (
     <div
       role="tablist"
-      aria-label="View"
+      aria-label={t('tabs.ariaLabel')}
       className="mb-6 inline-flex gap-1 rounded-2xl border border-[var(--border)] bg-[var(--bg)] p-1 shadow-sm"
     >
       {TABS.map((tab) => {
@@ -33,7 +36,7 @@ export function Tabs({ value, onChange }: TabsProps) {
                 : 'border-transparent text-[var(--text)] hover:bg-[var(--social-bg)] hover:text-[var(--text-h)]'
             }`}
           >
-            {tab.label}
+            {t(tab.labelKey)}
           </button>
         )
       })}

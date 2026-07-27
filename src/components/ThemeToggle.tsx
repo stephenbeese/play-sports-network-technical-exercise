@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useTheme } from '../lib/useTheme'
 import { THEMES } from '../lib/themes'
 
 export function ThemeToggle() {
+  const { t } = useTranslation()
   const { theme, setTheme } = useTheme()
   const [open, setOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -36,8 +38,8 @@ export function ThemeToggle() {
         onClick={() => setOpen((prev) => !prev)}
         aria-haspopup="menu"
         aria-expanded={open}
-        aria-label="Change colour theme"
-        title="Change colour theme"
+        aria-label={t('theme.change')}
+        title={t('theme.change')}
         className="inline-flex h-9 items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--bg)] px-3 text-sm text-[var(--text-h)] transition-colors hover:bg-[var(--accent-bg)] hover:text-[var(--accent)]"
       >
         <span
@@ -45,7 +47,9 @@ export function ThemeToggle() {
           style={{ backgroundColor: activeOption.swatch }}
           aria-hidden="true"
         />
-        <span className="hidden sm:inline">{activeOption.label}</span>
+        <span className="hidden sm:inline">
+          {t(`theme.names.${activeOption.id}`)}
+        </span>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="14"
@@ -66,7 +70,7 @@ export function ThemeToggle() {
       {open && (
         <div
           role="menu"
-          aria-label="Colour theme"
+          aria-label={t('theme.menuLabel')}
           className="absolute right-0 z-20 mt-2 w-40 overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--bg)] py-1 shadow-lg"
         >
           {THEMES.map((option) => {
@@ -92,7 +96,7 @@ export function ThemeToggle() {
                   style={{ backgroundColor: option.swatch }}
                   aria-hidden="true"
                 />
-                <span className="flex-1">{option.label}</span>
+                <span className="flex-1">{t(`theme.names.${option.id}`)}</span>
                 {isActive && (
                   <svg
                     xmlns="http://www.w3.org/2000/svg"

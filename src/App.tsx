@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react'
 import { AnimatePresence, MotionConfig, motion } from 'motion/react'
+import { useTranslation } from 'react-i18next'
+import './i18n'
 import { ChatPanel } from './components/ChatPanel'
 import { Charts } from './components/Charts'
 import { Filters } from './components/Filters'
@@ -17,6 +19,7 @@ import { useVideoData } from './lib/useVideoData'
 import { useVideoFilters } from './lib/useVideoFilters'
 
 function App() {
+  const { t } = useTranslation()
   const { rows, daily, loading, error } = useVideoData()
 
   const { channels, videoTypes, searchSuggestions, dateBounds } =
@@ -49,13 +52,13 @@ function App() {
       <Layout>
       {loading && (
         <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg)] p-10 text-center text-sm text-[var(--text)]">
-          Loading videos…
+          {t('app.loading')}
         </div>
       )}
 
       {error && !loading && (
         <div className="rounded-2xl border border-red-300 bg-red-50 p-10 text-center text-sm text-red-700 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-300">
-          Failed to load data: {error}
+          {t('app.loadError', { error })}
         </div>
       )}
 

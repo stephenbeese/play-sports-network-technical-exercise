@@ -1,5 +1,7 @@
 import { motion } from 'motion/react'
+import { useTranslation } from 'react-i18next'
 import { ALL } from '../lib/constants'
+import { formatChannel } from '../lib/format'
 import { SearchInput } from './SearchInput'
 
 interface FiltersProps {
@@ -50,43 +52,44 @@ export function Filters({
   onDateToChange,
   onReset,
 }: FiltersProps) {
+  const { t } = useTranslation()
   return (
     <div className="mb-6 flex flex-wrap items-end gap-4 rounded-2xl border border-[var(--border)] bg-[var(--bg)] p-4 shadow-sm">
       <label className={`${fieldClass} min-w-56 flex-1`}>
-        <span className={labelClass}>Search videos</span>
+        <span className={labelClass}>{t('filters.searchLabel')}</span>
         <SearchInput
           value={search}
           suggestions={searchSuggestions}
-          placeholder="Search by title or channel…"
+          placeholder={t('filters.searchPlaceholder')}
           onChange={onSearchChange}
           className={`${selectClass} w-full`}
         />
       </label>
 
       <label className={fieldClass}>
-        <span className={labelClass}>Channel</span>
+        <span className={labelClass}>{t('filters.channel')}</span>
         <select
           value={channel}
           onChange={(event) => onChannelChange(event.target.value)}
           className={selectClass}
         >
-          <option value={ALL}>All channels</option>
+          <option value={ALL}>{t('filters.allChannels')}</option>
           {channels.map((option) => (
             <option key={option} value={option}>
-              {option}
+              {formatChannel(option)}
             </option>
           ))}
         </select>
       </label>
 
       <label className={fieldClass}>
-        <span className={labelClass}>Format</span>
+        <span className={labelClass}>{t('filters.format')}</span>
         <select
           value={videoType}
           onChange={(event) => onVideoTypeChange(event.target.value)}
           className={selectClass}
         >
-          <option value={ALL}>All formats</option>
+          <option value={ALL}>{t('filters.allFormats')}</option>
           {videoTypes.map((option) => (
             <option key={option} value={option}>
               {option}
@@ -96,7 +99,7 @@ export function Filters({
       </label>
 
       <label className={fieldClass}>
-        <span className={labelClass}>Published from</span>
+        <span className={labelClass}>{t('filters.publishedFrom')}</span>
         <input
           type="date"
           value={dateFrom}
@@ -108,7 +111,7 @@ export function Filters({
       </label>
 
       <label className={fieldClass}>
-        <span className={labelClass}>Published to</span>
+        <span className={labelClass}>{t('filters.publishedTo')}</span>
         <input
           type="date"
           value={dateTo}
@@ -126,7 +129,7 @@ export function Filters({
         disabled={!canReset}
         className="rounded-lg bg-[var(--accent)] px-5 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
       >
-        Reset
+        {t('filters.reset')}
       </motion.button>
     </div>
   )
