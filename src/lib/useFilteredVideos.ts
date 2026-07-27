@@ -1,7 +1,20 @@
 import { useMemo } from 'react'
-import type { SortDirection, SortKey } from '../components/VideoTable'
+import {
+  avgPercentWatched,
+  type SortDirection,
+  type SortKey,
+} from '../components/VideoTable'
 import type { DailyStatRow, VideoRow } from '../types'
 import type { Filterable } from './useVideoFilters'
+
+/**
+ * Numeric value a row sorts by for a given key. `avgPctWatched` is derived, and
+ * videos with no views (NaN) fall to the bottom on descending sorts.
+ */
+function sortValue(row: VideoRow, key: SortKey): number {
+  const value = key === 'avgPctWatched' ? avgPercentWatched(row) : row[key]
+  return Number.isFinite(value) ? value : Number.NEGATIVE_INFINITY
+}
 
 /** A daily point aggregated across every video matching the current filters. */
 export interface DailyPoint {
@@ -32,8 +45,8 @@ export function useFilteredVideos(
         .filter(matchesFilters)
         .sort((a, b) =>
           sortDirection === 'desc'
-            ? b[sortKey] - a[sortKey]
-            : a[sortKey] - b[sortKey],
+            ? sortValue(b, sortKey) - sortValue(a, sortKey)
+            : sortValue(a, sortKey) - sortValue(b, sortKey),
         ),
     [rows, matchesFilters, sortKey, sortDirection],
   )

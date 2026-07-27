@@ -83,7 +83,7 @@ test('charts tab renders the chart sections', async ({ page }) => {
     'Top 10 videos by views',
     'Views by channel',
     'Video count by format',
-    'Watch time by channel',
+    'Estimated watch time by channel',
   ]) {
     await expect(page.getByRole('heading', { name: heading })).toBeVisible()
   }

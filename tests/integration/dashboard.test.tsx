@@ -190,7 +190,7 @@ describe('dashboard', () => {
         'Top 10 videos by views',
         'Views by channel',
         'Video count by format',
-        'Watch time by channel',
+        'Estimated watch time by channel',
       ]) {
         expect(
           await screen.findByRole('heading', { name: heading }),

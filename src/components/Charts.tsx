@@ -26,17 +26,15 @@ interface ChartsProps {
 }
 
 const COLORS = {
-  lime: '#84cc16',
-  blue: '#3b82f6',
-  rose: '#fb7185',
   accent: 'var(--accent)',
   slate: '#94a3b8',
 }
 
-// Metric -> colour, kept consistent across every chart.
-const VIEWS_COLOR = COLORS.blue
-const ENGAGEMENTS_COLOR = COLORS.rose
-const WATCHTIME_COLOR = COLORS.lime
+// Metric -> colour, driven by the per-metric theme variables so charts and KPI
+// cards stay in sync across every theme.
+const VIEWS_COLOR = 'var(--metric-views)'
+const ENGAGEMENTS_COLOR = 'var(--metric-engagements)'
+const WATCHTIME_COLOR = 'var(--metric-watchtime)'
 
 // The format split is a composition, not a metric, so it gets its own pairing:
 // Shorts = accent, Long-form = muted slate (mirrors the neutral badge styling).
@@ -280,7 +278,7 @@ export function Charts({ rows, daily }: ChartsProps) {
       </div>
 
       <div className={cardClass}>
-        <h3 className={titleClass}>Watch time by channel</h3>
+        <h3 className={titleClass}>Estimated watch time by channel</h3>
         <ResponsiveContainer width="100%" height={360}>
           <BarChart data={watchTimeByChannel} margin={{ left: 8, right: 16 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
@@ -293,7 +291,7 @@ export function Charts({ rows, daily }: ChartsProps) {
               {...axisProps}
             />
             <YAxis
-              tickFormatter={(value: number) => formatCompact(value / 3600)}
+              tickFormatter={(value: number) => formatCompact(value / 60)}
               {...axisProps}
             />
             <Tooltip
@@ -302,7 +300,7 @@ export function Charts({ rows, daily }: ChartsProps) {
             />
             <Bar
               dataKey="watchtime"
-              name="Watch time"
+              name="Estimated watch time"
               fill={WATCHTIME_COLOR}
               radius={[4, 4, 0, 0]}
             />

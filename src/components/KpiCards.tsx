@@ -34,19 +34,19 @@ export function KpiCards({ rows }: KpiCardsProps) {
       label: 'Total Views',
       value: formatCompact(totals.views),
       hint: 'Across the selected window',
-      accent: '#84cc16',
+      accent: 'var(--metric-views)',
     },
     {
-      label: 'Watch Time',
+      label: 'Estimated Watch Time',
       value: formatWatchTime(totals.watchtime),
       hint: 'Estimated audience attention',
-      accent: '#3b82f6',
+      accent: 'var(--metric-watchtime)',
     },
     {
       label: 'Engagements',
       value: formatCompact(totals.engagements),
       hint: 'Likes, comments and shares',
-      accent: '#fb7185',
+      accent: 'var(--metric-engagements)',
     },
     {
       label: 'Active Videos',

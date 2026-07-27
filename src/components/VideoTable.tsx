@@ -3,12 +3,13 @@ import {
   formatDate,
   formatDuration,
   formatNumber,
+  formatPercent,
   formatWatchTime,
 } from '../lib/format'
 import { FormatBadge } from './FormatBadge'
 
 /** Metric columns that the table can be sorted by. */
-export type SortKey = 'views' | 'engagements' | 'watchtime'
+export type SortKey = 'views' | 'engagements' | 'watchtime' | 'avgPctWatched'
 
 /** Sort direction: descending (highest first) or ascending (lowest first). */
 export type SortDirection = 'asc' | 'desc'
@@ -26,14 +27,27 @@ interface VideoTableProps {
 const SORTABLE_COLUMNS: { key: SortKey; label: string; className: string }[] = [
   { key: 'views', label: 'Views', className: 'px-4' },
   { key: 'engagements', label: 'Engagements', className: 'px-4' },
-  { key: 'watchtime', label: 'Watch Time', className: 'px-6' },
+  { key: 'watchtime', label: 'Est. Watch Time', className: 'px-6' },
+  { key: 'avgPctWatched', label: 'Avg % Watched', className: 'px-6' },
 ]
 
 const RANK_OPTIONS: { value: SortKey; label: string }[] = [
   { value: 'views', label: 'Views' },
   { value: 'engagements', label: 'Engagements' },
-  { value: 'watchtime', label: 'Watch Time' },
+  { value: 'watchtime', label: 'Est. Watch Time' },
+  { value: 'avgPctWatched', label: 'Avg % Watched' },
 ]
+
+/**
+ * Average share of each video actually watched: total watch-time minutes over
+ * the maximum possible (views x length). Can exceed 100% when Shorts loop.
+ * Returns NaN when a video has no views (rendered as "—").
+ */
+export function avgPercentWatched(row: VideoRow): number {
+  const lengthMinutes = row.video_length / 60000
+  if (row.views <= 0 || lengthMinutes <= 0) return Number.NaN
+  return row.watchtime / (row.views * lengthMinutes)
+}
 
 export function VideoTable({
   rows,
@@ -51,6 +65,14 @@ export function VideoTable({
       onSortDirectionChange('desc')
     }
   }
+
+  // Emphasise whichever metric column is currently driving the sort.
+  const metricCellClass = (key: SortKey, padding: string) =>
+    `${padding} py-3 text-right text-sm tabular-nums ${
+      sortKey === key
+        ? 'font-semibold text-[var(--text-h)]'
+        : 'text-[var(--text)]'
+    }`
 
   return (
     <div className="mb-6 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--bg)] shadow-sm">
@@ -103,7 +125,7 @@ export function VideoTable({
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[860px] border-collapse text-left">
+        <table className="w-full min-w-[1120px] border-collapse text-left">
           <thead>
             <tr className="border-b border-[var(--border)] text-[11px] font-semibold uppercase tracking-wider text-[var(--text)]">
               <th className="px-6 py-4 font-semibold">Video</th>
@@ -121,7 +143,7 @@ export function VideoTable({
                           : 'ascending'
                         : 'none'
                     }
-                    className={`${column.className} py-4 text-right`}
+                    className={`${column.className} py-4 text-right whitespace-nowrap`}
                   >
                     <button
                       type="button"
@@ -189,14 +211,17 @@ export function VideoTable({
                 <td className="px-4 py-3">
                   <FormatBadge format={row.video_type} />
                 </td>
-                <td className="px-4 py-3 text-right text-sm font-semibold tabular-nums text-[var(--text-h)]">
+                <td className={metricCellClass('views', 'px-4')}>
                   {formatNumber(row.views)}
                 </td>
-                <td className="px-4 py-3 text-right text-sm tabular-nums text-[var(--text)]">
+                <td className={metricCellClass('engagements', 'px-4')}>
                   {formatNumber(row.engagements)}
                 </td>
-                <td className="px-6 py-3 text-right text-sm tabular-nums text-[var(--text)]">
+                <td className={metricCellClass('watchtime', 'px-6')}>
                   {formatWatchTime(row.watchtime)}
+                </td>
+                <td className={metricCellClass('avgPctWatched', 'px-6')}>
+                  {formatPercent(avgPercentWatched(row))}
                 </td>
               </tr>
             ))}
